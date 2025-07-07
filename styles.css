@@ -1,0 +1,15 @@
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: auto;
+    width: 70%;
+    padding: 0 20px;
+    background: #f9f9f9;
+    color: #333;
+    line-height: 2;
+    font-size: larger;
+  }
+
+  table {
+    width: 100%;
+  }
