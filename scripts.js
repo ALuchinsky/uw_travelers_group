@@ -7,15 +7,18 @@
       if(show_by !="no" && show_by != false) {
         presenters = "by " + presenters
       }
-      this.innerHTML = `
+        this.innerHTML = `
         <br>
         <table>
             <tr>
-                <td width="20%">${date}</td>
-                <td><span style="color:chocolate">${title}</span> ${presenters}</td>
+            <td width="20%">${date}</td>
+            <td>
+                ${title ? `<span style="color:chocolate">&laquo;${title}&raquo;</span> ` : ''}
+                ${presenters}
+            </td>
             </tr>
         </table>
-      `;
+        `;
     }
   }
   customElements.define('meeting-entry', MeetingEntry);
