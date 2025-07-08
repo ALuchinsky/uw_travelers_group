@@ -2,7 +2,11 @@
     connectedCallback() {
       const date = this.getAttribute('date');
       const title = this.getAttribute('title');
-      const presenters = this.getAttribute('presenters');
+      var presenters = this.getAttribute('presenters');
+      const show_by = this.getAttribute("show_by")
+      if(show_by !="no" && show_by != false) {
+        presenters = "by " + presenters
+      }
       this.innerHTML = `
         <br>
         <table>
