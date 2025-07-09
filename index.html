@@ -304,16 +304,35 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
 <textarea id="chat_text" style="width: 100%; height: 200px; padding: 10px;">
 </textarea>
 <button id="send_chat_btn" onclick="sendChat()">Send</button>
+<div id="chat_content"/>
 
 <script>
   window.chat_history = []
+
+  function renderChatArea() {
+    console.log("Rendering Chat Area")
+    const container = document.getElementById("chat_content");
+    let html = "<div>"
+      window.chat_history.forEach(element => {
+        console.log(element)
+        html += `<p> ${element["author"]}: ${element["text"]}</p>`    
+      });
+    html += `<p> ${window.chat_history.length} records`
+    html += "</div>"
+    container.innerHTML = html;
+
+  }
 
   function sendChat() {
     console.log("sendChat()")
     txt = document.getElementById("chat_text")
     window.chat_history.push({author:window.currentUser, text: txt.value})
+    renderChatArea()
   }
 </script>
+
+
+
 
 </div>
 
