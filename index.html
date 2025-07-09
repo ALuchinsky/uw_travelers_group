@@ -5,12 +5,40 @@
   <title>UW: Travelers Group</title>
   <link rel="stylesheet" href="./styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 
 <script src="scripts.js"></script>
 
 
+
 <body>
+
+
+
+  <script>
+    console.log("Hello, I am loading!")
+    let schedule_data = []
+    const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
+    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+      async function loadSchedule() {
+    const { data, error } = await client
+      .from('schedule2025')
+      .select('*')
+      .order('Date', { ascending: true });
+
+    if (error) {
+      console.error('Error loading schedule:', error);
+      return;
+    }
+    schedule_data = data
+    console.log("data = ", data)
+    console.log("error = ", error)
+  }
+  document.addEventListener('DOMContentLoaded', loadSchedule);
+  </script>
 
     <h1> Travelers Group </h1>
 <p>
@@ -219,5 +247,9 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
 </div>
 
 <hr>
+
+  <script>
+    console.log("Hello, I have downloaded!")
+  </script>
 
 </body>
