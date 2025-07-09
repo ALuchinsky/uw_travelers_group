@@ -25,11 +25,21 @@
    })();
 </script>
 
-
-
   <script>
     console.log("Hello, I am loading!")
     document.addEventListener('DOMContentLoaded', loadSchedule);
+  </script>
+
+
+  <script>
+window.addEventListener("DOMContentLoaded", () => {
+  const stored = localStorage.getItem("currentUser");
+  if (stored) {
+    currentUser = stored;
+    document.getElementById("login-status").textContent = `Logged in as ${currentUser}`;
+    document.getElementById("username").value = stored;
+  }
+});
   </script>
 
 <div id="login-bar" style="padding: 10px; background: #eef; display: flex; gap: 10px; align-items: center;">
@@ -52,6 +62,7 @@ function loginUser() {
   }
 
   window.currentUser = name;
+  localStorage.setItem("currentUser", name);
   document.getElementById("login-status").textContent = `Logged in as ${window.currentUser}`;
   // document.getElementById("username").disabled = true;
 }
