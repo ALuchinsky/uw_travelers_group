@@ -14,6 +14,42 @@
 
 <body>
 
+<script>
+  function openPage(evt, tabName) {
+  var i, tabcontent, tablinks;
+  console.log("openPage called with tabName: " + tabName);
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].classList.remove("active");
+  }
+  var tab = document.getElementById(tabName);
+  if (tab) {
+    tab.style.display = "block";
+  }
+  if (evt) {
+    evt.currentTarget.classList.add("active");
+  } else {
+    // Automatically mark the correct button active if evt is null (on load)
+    for (i = 0; i < tablinks.length; i++) {
+      if (tablinks[i].textContent === tabName) {
+        tablinks[i].classList.add("active");
+      }
+    }
+  }
+}
+
+window.onload = function() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get("tab") || "Presentations";
+  openPage(null, tab);
+};
+
+</script>
+
 <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
 </script>
@@ -69,6 +105,16 @@ function loginUser() {
 </script>
 
     <h1> Travelers Group </h1>
+
+    <!-- Tab links -->
+
+<div class="tab">
+  <button class="tablinks" onclick="openPage(event, 'Presentations')">Presentations</button>
+  <button class="tablinks" onclick="openPage(event, 'Chat')">Chat</button>
+</div>
+
+<div id="Presentations" class="tabcontent" style="display: block;">
+
 <p>
     The Travelers group, composed of both individuals and couples, typically meets from 5:00 PM to 7:00 PM on the 4th Sunday of the month from September through May.  The schedule for 2024-2025 may have some exceptions due to holidays.  Each month one or more members present hints and highlights about trips they have taken; from Yellowstone to Bhutan, from Ireland to Indonesia. Meetings are held in members’ homes or occasionally in a larger venue (which allows for more participants) and feature pot-luck food and beverage items. Members are requested to host, co-host, and/or present periodically.
 </p>
@@ -251,5 +297,12 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
   <script>
     console.log("Hello, I have downloaded!")
   </script>
+</div>
+
+<div id="Chat" class="tabcontent" style="display: block;">
+<p>This is chat</p>
+</div>
 
 </body>
+
+</html>
