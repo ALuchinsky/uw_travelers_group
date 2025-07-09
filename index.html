@@ -25,12 +25,48 @@
    })();
 </script>
 
-
-
   <script>
     console.log("Hello, I am loading!")
     document.addEventListener('DOMContentLoaded', loadSchedule);
   </script>
+
+
+  <script>
+window.addEventListener("DOMContentLoaded", () => {
+  const stored = localStorage.getItem("currentUser");
+  if (stored) {
+    currentUser = stored;
+    document.getElementById("login-status").textContent = `Logged in as ${currentUser}`;
+    document.getElementById("username").value = stored;
+  }
+});
+  </script>
+
+<div id="login-bar" style="padding: 10px; background: #eef; display: flex; gap: 10px; align-items: center;">
+  <label for="username">Username:</label>
+  <input type="text" id="username" placeholder="Enter your name">
+  <button onclick="loginUser()">Login</button>
+  <span id="login-status" style="margin-left: 10px; font-weight: bold;"></span>
+</div>
+
+<script>
+  window.currentUser = null;
+
+function loginUser() {
+  const input = document.getElementById("username");
+  const name = input.value.trim();
+
+  if (!name) {
+    alert("Please enter your name.");
+    return;
+  }
+
+  window.currentUser = name;
+  localStorage.setItem("currentUser", name);
+  document.getElementById("login-status").textContent = `Logged in as ${window.currentUser}`;
+  // document.getElementById("username").disabled = true;
+}
+</script>
 
     <h1> Travelers Group </h1>
 <p>
@@ -58,6 +94,7 @@
     console.log("Saving")
     email_data = {
       name: "Travel Club Website",
+      user: window.currentUser,
       email: "aluchi@bgsu.edu",  // optional: use fixed or dynamic email
       message: JSON.stringify(window.schedule_data)
     }
