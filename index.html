@@ -44,7 +44,7 @@
 
 window.onload = function() {
   const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab") || "Presentations";
+  const tab = params.get("tab") || "Chat";
   openPage(null, tab);
 };
 
@@ -300,7 +300,21 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
 </div>
 
 <div id="Chat" class="tabcontent" style="display: block;">
-<p>This is chat</p>
+
+<textarea id="chat_text" style="width: 100%; height: 200px; padding: 10px;">
+</textarea>
+<button id="send_chat_btn" onclick="sendChat()">Send</button>
+
+<script>
+  window.chat_history = []
+
+  function sendChat() {
+    console.log("sendChat()")
+    txt = document.getElementById("chat_text")
+    window.chat_history.push({author:window.currentUser, text: txt.value})
+  }
+</script>
+
 </div>
 
 </body>
