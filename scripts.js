@@ -66,8 +66,14 @@ async function loadSchedule() {
 
 function handleCellDoubleClick(column, rowIndex) {
   const value = schedule_data[rowIndex][column];
-  alert(`Double-clicked on: ${column} = "${value}" (row ${rowIndex + 1})`);
-  schedule_data[rowIndex][column] = "clicked"
+  // alert(`Double-clicked on: ${column} = "${value}" (row ${rowIndex + 1})`);
+  const currentValue = schedule_data[rowIndex][column]
+  var new_value = prompt(`Edit ${column}:`, currentValue)
+  if(new_value == null) {
+    new_value = ""
+  }
+  new_value = "(" + new_value + ")"
+  schedule_data[rowIndex][column] = new_value
   // Optional: add editing logic here later
   renderScheduleTable(schedule_data);
 }
