@@ -32,6 +32,31 @@
     document.addEventListener('DOMContentLoaded', loadSchedule);
   </script>
 
+<div id="login-bar" style="padding: 10px; background: #eef; display: flex; gap: 10px; align-items: center;">
+  <label for="username">Username:</label>
+  <input type="text" id="username" placeholder="Enter your name">
+  <button onclick="loginUser()">Login</button>
+  <span id="login-status" style="margin-left: 10px; font-weight: bold;"></span>
+</div>
+
+<script>
+  window.currentUser = null;
+
+function loginUser() {
+  const input = document.getElementById("username");
+  const name = input.value.trim();
+
+  if (!name) {
+    alert("Please enter your name.");
+    return;
+  }
+
+  window.currentUser = name;
+  document.getElementById("login-status").textContent = `Logged in as ${window.currentUser}`;
+  // document.getElementById("username").disabled = true;
+}
+</script>
+
     <h1> Travelers Group </h1>
 <p>
     The Travelers group, composed of both individuals and couples, typically meets from 5:00 PM to 7:00 PM on the 4th Sunday of the month from September through May.  The schedule for 2024-2025 may have some exceptions due to holidays.  Each month one or more members present hints and highlights about trips they have taken; from Yellowstone to Bhutan, from Ireland to Indonesia. Meetings are held in members’ homes or occasionally in a larger venue (which allows for more participants) and feature pot-luck food and beverage items. Members are requested to host, co-host, and/or present periodically.
@@ -58,6 +83,7 @@
     console.log("Saving")
     email_data = {
       name: "Travel Club Website",
+      user: window.currentUser,
       email: "aluchi@bgsu.edu",  // optional: use fixed or dynamic email
       message: JSON.stringify(window.schedule_data)
     }
