@@ -315,7 +315,8 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
     let html = "<div>"
       window.chat_history.forEach(element => {
         console.log(element)
-        html += `<p> ${element["author"]}: ${element["text"]}</p>`    
+        html += `<p><span style="color:red;">${element["author"]}</span> ${element["time"].toLocaleTimeString()}: `
+        html += `${element["content"]}</p>`
       });
     html += `<p> ${window.chat_history.length} records`
     html += "</div>"
@@ -326,7 +327,8 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
   function sendChat() {
     console.log("sendChat()")
     txt = document.getElementById("chat_text")
-    window.chat_history.push({author:window.currentUser, text: txt.value})
+    now = new Date();
+    window.chat_history.push({author:window.currentUser, time:now, content: txt.value})
     renderChatArea()
   }
 </script>
