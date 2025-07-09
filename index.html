@@ -34,9 +34,29 @@
       return;
     }
     schedule_data = data
-    console.log("data = ", data)
-    console.log("error = ", error)
-  }
+    renderScheduleTable(schedule_data); // ✅ call render after loading
+
+      function renderScheduleTable(data) {
+    const container = document.getElementById("schedule-table");
+
+    let html = '<table border="1" cellpadding="5" cellspacing="0">';
+    html += '<thead><tr><th>Date</th><th>Title</th><th>Presenters</th><th>Topic</th></tr></thead><tbody>';
+
+    data.forEach(entry => {
+      html += `
+        <tr>
+          <td>${entry.Date || ''}</td>
+          <td>${entry.Hosts || ''}</td>
+          <td>${entry.Presenters || ''}</td>
+          <td>${entry.Topic || ''}</td>
+        </tr>
+      `;
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+    }
+    }
   document.addEventListener('DOMContentLoaded', loadSchedule);
   </script>
 
@@ -48,66 +68,7 @@
 <hr>
 <h2> Future Presentations (2025 &ndash; 2026)</h2>
 
-<table border="1" cellspacing="0" cellpadding="6">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Hosts</th>
-      <th>Presenters</th>
-      <th>Topic</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>28-Sep</td>
-      <td>Joan and Bob Callecod</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>26-Oct</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>23-Nov</td>
-      <td></td>
-      <td>Hilde Farrow</td>
-      <td>Cruise: Bejing to Tokyo</td>
-    </tr>
-    <tr>
-      <td>25-Jan</td>
-      <td>Hakels</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>22-Feb</td>
-      <td>Roger and BettyJean Anderson</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>22-Mar</td>
-      <td>Rick and Akiko Jones</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>26-Apr</td>
-      <td>Betty Yarris</td>
-      <td>Sue and Dave Potter</td>
-      <td>Singapore</td>
-    </tr>
-    <tr>
-      <td>17-May</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
+<div id="schedule-table"></div>
 
 <br>
 Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the Excel file
