@@ -34,8 +34,11 @@ function renderScheduleTable(data) {
     html += '<tr>';
 
     ['Date', 'Hosts', 'Presenters', 'Topic'].forEach((key) => {
-      html += `<td ondblclick="handleCellDoubleClick('${key}', ${rowIndex})">
-        ${entry[key] || ''}
+      const value = entry[key] || '';
+      const style = value.trim().startsWith('(') ? 'style="background-color: #ffcccc;"' : '';
+
+      html += `<td ${style} ondblclick="handleCellDoubleClick('${key}', ${rowIndex})">
+        ${value}
       </td>`;
     });
 
