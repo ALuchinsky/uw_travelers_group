@@ -28,17 +28,18 @@ function renderScheduleTable(data) {
   const container = document.getElementById("schedule-table");
 
   let html = '<table border="1" cellpadding="5" cellspacing="0">';
-  html += '<thead><tr><th>Date</th><th>Title</th><th>Presenters</th><th>Topic</th></tr></thead><tbody>';
+  html += '<thead><tr><th>Date</th><th>Hosts</th><th>Presenters</th><th>Topic</th></tr></thead><tbody>';
 
-  data.forEach(entry => {
-    html += `
-      <tr>
-        <td>${entry.Date || ''}</td>
-        <td>${entry.Hosts || ''}</td>
-        <td>${entry.Presenters || ''}</td>
-        <td>${entry.Topic || ''}</td>
-      </tr>
-    `;
+  data.forEach((entry, rowIndex) => {
+    html += '<tr>';
+
+    ['Date', 'Hosts', 'Presenters', 'Topic'].forEach((key) => {
+      html += `<td ondblclick="handleCellDoubleClick('${key}', ${rowIndex})">
+        ${entry[key] || ''}
+      </td>`;
+    });
+
+    html += '</tr>';
   });
 
   html += '</tbody></table>';
@@ -59,5 +60,14 @@ async function loadSchedule() {
       return;
     }
     schedule_data = data
+    console.log("data = ", data)
     renderScheduleTable(schedule_data); // ✅ call render after loading
+}
+
+function handleCellDoubleClick(column, rowIndex) {
+  const value = schedule_data[rowIndex][column];
+  alert(`Double-clicked on: ${column} = "${value}" (row ${rowIndex + 1})`);
+  schedule_data[rowIndex][column] = "clicked"
+  // Optional: add editing logic here later
+  renderScheduleTable(schedule_data);
 }
