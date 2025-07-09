@@ -14,6 +14,19 @@
 
 <body>
 
+<script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "DssKR2IjqteHDCGO7",
+      });
+   })();
+</script>
+
+
+
   <script>
     console.log("Hello, I am loading!")
     document.addEventListener('DOMContentLoaded', loadSchedule);
@@ -38,6 +51,25 @@
 
   }
 </script>
+
+<button id = "save_btn">Save</button>
+<script>
+  document.getElementById("save_btn").onclick = function() {
+    console.log("Saving")
+    email_data = {
+      name: "Travel Club Website",
+      email: "aluchi@bgsu.edu",  // optional: use fixed or dynamic email
+      message: JSON.stringify(window.schedule_data)
+    }
+    emailjs.send("service_xg53xju", "template_efpbkjn", email_data).then( () => {
+      console.log("Email sent successfully")
+      console.log("email_data = ", email_data)
+    }).catch( (error) => {
+      console.log("Email sent with error ", error)
+    })
+  }
+</script>
+
 <div id="schedule-table"></div>
 
 <br>
