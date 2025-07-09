@@ -5,12 +5,32 @@
   <title>UW: Travelers Group</title>
   <link rel="stylesheet" href="./styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 
 <script src="scripts.js"></script>
 
 
+
 <body>
+
+<script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "DssKR2IjqteHDCGO7",
+      });
+   })();
+</script>
+
+
+
+  <script>
+    console.log("Hello, I am loading!")
+    document.addEventListener('DOMContentLoaded', loadSchedule);
+  </script>
 
     <h1> Travelers Group </h1>
 <p>
@@ -20,66 +40,37 @@
 <hr>
 <h2> Future Presentations (2025 &ndash; 2026)</h2>
 
-<table border="1" cellspacing="0" cellpadding="6">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Hosts</th>
-      <th>Presenters</th>
-      <th>Topic</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>28-Sep</td>
-      <td>Joan and Bob Callecod</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>26-Oct</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>23-Nov</td>
-      <td></td>
-      <td>Hilde Farrow</td>
-      <td>Cruise: Bejing to Tokyo</td>
-    </tr>
-    <tr>
-      <td>25-Jan</td>
-      <td>Hakels</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>22-Feb</td>
-      <td>Roger and BettyJean Anderson</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>22-Mar</td>
-      <td>Rick and Akiko Jones</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>26-Apr</td>
-      <td>Betty Yarris</td>
-      <td>Sue and Dave Potter</td>
-      <td>Singapore</td>
-    </tr>
-    <tr>
-      <td>17-May</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
+
+<button id = "revert_btn">Revert</button>
+<script>
+  document.getElementById("revert_btn").onclick = function() {
+    console.log("clicked")
+    window.schedule_data =JSON.parse(JSON.stringify(window.oldData))
+    console.log(window.schedule_data)
+    renderScheduleTable(window.schedule_data); // ✅ call render after loading
+
+  }
+</script>
+
+<button id = "save_btn">Save</button>
+<script>
+  document.getElementById("save_btn").onclick = function() {
+    console.log("Saving")
+    email_data = {
+      name: "Travel Club Website",
+      email: "aluchi@bgsu.edu",  // optional: use fixed or dynamic email
+      message: JSON.stringify(window.schedule_data)
+    }
+    emailjs.send("service_xg53xju", "template_efpbkjn", email_data).then( () => {
+      console.log("Email sent successfully")
+      console.log("email_data = ", email_data)
+    }).catch( (error) => {
+      console.log("Email sent with error ", error)
+    })
+  }
+</script>
+
+<div id="schedule-table"></div>
 
 <br>
 Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the Excel file
@@ -219,5 +210,9 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
 </div>
 
 <hr>
+
+  <script>
+    console.log("Hello, I have downloaded!")
+  </script>
 
 </body>
