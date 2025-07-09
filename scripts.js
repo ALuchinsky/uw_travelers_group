@@ -25,6 +25,7 @@
 
 
 function renderScheduleTable(data) {
+  console.log("Rendering Schedule table")
   const container = document.getElementById("schedule-table");
 
   let html = '<table border="1" cellpadding="5" cellspacing="0">';
@@ -62,21 +63,21 @@ async function loadSchedule() {
       console.error('Error loading schedule:', error);
       return;
     }
-    schedule_data = data
-    console.log("data = ", data)
-    renderScheduleTable(schedule_data); // ✅ call render after loading
+    window.oldData = JSON.parse(JSON.stringify(data));
+    window.schedule_data = JSON.parse(JSON.stringify(data));    console.log("data = ", data)
+    renderScheduleTable(window.schedule_data); // ✅ call render after loading
 }
 
 function handleCellDoubleClick(column, rowIndex) {
-  const value = schedule_data[rowIndex][column];
+  const value = window.schedule_data[rowIndex][column];
   // alert(`Double-clicked on: ${column} = "${value}" (row ${rowIndex + 1})`);
-  const currentValue = schedule_data[rowIndex][column]
+  const currentValue = window.schedule_data[rowIndex][column]
   var new_value = prompt(`Edit ${column}:`, currentValue)
   if(new_value == null) {
     new_value = ""
   }
   new_value = "(" + new_value + ")"
-  schedule_data[rowIndex][column] = new_value
+  window.schedule_data[rowIndex][column] = new_value
   // Optional: add editing logic here later
-  renderScheduleTable(schedule_data);
+  renderScheduleTable(window.schedule_data);
 }

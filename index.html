@@ -27,6 +27,17 @@
 <hr>
 <h2> Future Presentations (2025 &ndash; 2026)</h2>
 
+
+<button id = "revert_btn">Revert</button>
+<script>
+  document.getElementById("revert_btn").onclick = function() {
+    console.log("clicked")
+    window.schedule_data =JSON.parse(JSON.stringify(window.oldData))
+    console.log(window.schedule_data)
+    renderScheduleTable(window.schedule_data); // ✅ call render after loading
+
+  }
+</script>
 <div id="schedule-table"></div>
 
 <br>
