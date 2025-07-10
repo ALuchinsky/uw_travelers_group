@@ -1,4 +1,4 @@
-  class MeetingEntry extends HTMLElement {
+    class MeetingEntry extends HTMLElement {
     connectedCallback() {
       const date = this.getAttribute('date');
       const title = this.getAttribute('title');
@@ -81,3 +81,5 @@ function handleCellDoubleClick(column, rowIndex) {
   // Optional: add editing logic here later
   renderScheduleTable(window.schedule_data);
 }
+
+document.addEventListener('DOMContentLoaded', loadSchedule);
