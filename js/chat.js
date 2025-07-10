@@ -1,7 +1,14 @@
-    const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
-    const client_chat = window.supabase.createClient(supabaseUrl, supabaseKey);
+/******
+ * Supabase credentials
+ */
 
+const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
+const client_chat = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+/*************
+ * Sends chat message, i.e. adds it to supabase table and loads all messages back
+ */
 async function sendMessage() {
   const author = window.currentUser;
   const content = document.getElementById("chat_text").value.trim();
@@ -25,8 +32,10 @@ async function sendMessage() {
   await loadChatMessages(); // refresh after send
 }
 
+/************************
+ * Loads all chat message from supabase table and updates the **chat-box** element
+ */
 async function loadChatMessages() {
-  // console.log("Loading chat messages")
   const { data, error } = await client_chat
     .from("messages")
     .select("*")
@@ -54,6 +63,10 @@ async function loadChatMessages() {
 setInterval(loadChatMessages, 5000);
 document.addEventListener("DOMContentLoaded", loadChatMessages);
 
+
+/*****************
+ * Chat message is sent on simple enter
+ */
 document.getElementById("chat_text").addEventListener("keydown", function (event) {
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault(); // prevent new line

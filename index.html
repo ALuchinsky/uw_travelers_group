@@ -24,7 +24,11 @@
    })();
 </script>
 
-
+<!-- 
+========================
+USER LOGIN BLOCK
+========================
+ -->
 <div id="login-bar" style="padding: 10px; background: #eef; display: flex; gap: 10px; align-items: center;">
   <label for="username">Username:</label>
   <input type="text" id="username" placeholder="Enter your name">
@@ -35,8 +39,11 @@
 
     <h1> Travelers Group </h1>
 
-    <!-- Tab links -->
-
+<!-- 
+========================
+TAB LINKS
+========================
+ -->
 <div class="tab">
   <button class="tablinks" onclick="openPage(event, 'Presentations')">Presentations</button>
   <button class="tablinks" onclick="openPage(event, 'Chat')">Chat</button>
@@ -53,34 +60,19 @@
 <h2> Future Presentations (2025 &ndash; 2026)</h2>
 
 
-<button id = "revert_btn">Revert</button>
-<script>
-  document.getElementById("revert_btn").onclick = function() {
-    console.log("clicked")
-    window.schedule_data =JSON.parse(JSON.stringify(window.oldData))
-    console.log(window.schedule_data)
-    renderScheduleTable(window.schedule_data); // ✅ call render after loading
+<!-- 
+========================
+SCHEDULE TABLE
+========================
+ -->
+<script src="./js/schedule.js"></script>
 
-  }
-</script>
+<button id = "revert_btn">Revert</button>
+<script>document.getElementById("revert_btn").onclick = revertSchedule</script>
 
 <button id = "save_btn">Save</button>
 <script>
-  document.getElementById("save_btn").onclick = function() {
-    console.log("Saving")
-    email_data = {
-      name: "Travel Club Website",
-      user: window.currentUser,
-      email: "aluchi@bgsu.edu",  // optional: use fixed or dynamic email
-      message: JSON.stringify(window.schedule_data)
-    }
-    emailjs.send("service_xg53xju", "template_efpbkjn", email_data).then( () => {
-      console.log("Email sent successfully")
-      console.log("email_data = ", email_data)
-    }).catch( (error) => {
-      console.log("Email sent with error ", error)
-    })
-  }
+  document.getElementById("save_btn").onclick = saveSchedule
 </script>
 
 <div id="schedule-table"></div>
@@ -224,9 +216,6 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
 
 <hr>
 
-  <script>
-    console.log("Hello, I have downloaded!")
-  </script>
 </div>
 
 <div id="Chat" class="tabcontent" style="display: block;">

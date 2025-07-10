@@ -1,6 +1,8 @@
-  function openPage(evt, tabName) {
+/***********
+ * opens a specified tab
+ */
+function openPage(evt, tabName) {
   var i, tabcontent, tablinks;
-  console.log("openPage called with tabName: " + tabName);
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
     tabcontent[i].style.display = "none";
@@ -25,6 +27,9 @@
   }
 }
 
+/********
+ * Opens Presentations tab on the beginning
+ */
 window.onload = function() {
   const params = new URLSearchParams(window.location.search);
   const tab = params.get("tab") || "Presentations";
