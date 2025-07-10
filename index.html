@@ -44,7 +44,7 @@
 
 window.onload = function() {
   const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab") || "Chat";
+  const tab = params.get("tab") || "Presentations";
   openPage(null, tab);
 };
 
@@ -301,7 +301,7 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
 
 <div id="Chat" class="tabcontent" style="display: block;">
 
-<textarea id="chat_text" style="width: 100%; height: 200px; padding: 10px;">
+<textarea id="chat_text" style="width: 100%; height: 70px; padding: 10px;">
 </textarea>
 <button id="send_chat_btn" onclick="sendMessage()">Send</button>
 <div id="chat-box"/>
@@ -335,11 +335,11 @@ async function sendMessage() {
 }
 
 async function loadChatMessages() {
-  console.log("Loading chat messages")
+  // console.log("Loading chat messages")
   const { data, error } = await client_chat
     .from("messages")
     .select("*")
-    .order("time", { ascending: true });
+    .order("time", { ascending: false });
 
   if (error) {
     console.error("Failed to load messages:", error);
@@ -348,8 +348,8 @@ async function loadChatMessages() {
 
   const chatBox = document.getElementById("chat-box");
   const html = data.map(msg => {
-    console.log(msg)
-    return(`<div><strong>${msg.author}</strong>:<small>${msg.time}</small><br> ${msg.content}</div>`)
+    // console.log(msg)
+    return(`<div><strong>${msg.author}</strong>:<small>${msg.time}</small><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
   }
   ).join("");
   chatBox.innerHTML = html
@@ -362,6 +362,14 @@ async function loadChatMessages() {
 // auto-refresh every 50 seconds
 setInterval(loadChatMessages, 5000);
 document.addEventListener("DOMContentLoaded", loadChatMessages);
+
+document.getElementById("chat_text").addEventListener("keydown", function (event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault(); // prevent new line
+    sendMessage();          // your function
+  }
+});
+
 </script>
 
 
