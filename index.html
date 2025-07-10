@@ -14,6 +14,42 @@
 
 <body>
 
+<script>
+  function openPage(evt, tabName) {
+  var i, tabcontent, tablinks;
+  console.log("openPage called with tabName: " + tabName);
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].classList.remove("active");
+  }
+  var tab = document.getElementById(tabName);
+  if (tab) {
+    tab.style.display = "block";
+  }
+  if (evt) {
+    evt.currentTarget.classList.add("active");
+  } else {
+    // Automatically mark the correct button active if evt is null (on load)
+    for (i = 0; i < tablinks.length; i++) {
+      if (tablinks[i].textContent === tabName) {
+        tablinks[i].classList.add("active");
+      }
+    }
+  }
+}
+
+window.onload = function() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get("tab") || "Presentations";
+  openPage(null, tab);
+};
+
+</script>
+
 <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
 </script>
@@ -69,6 +105,16 @@ function loginUser() {
 </script>
 
     <h1> Travelers Group </h1>
+
+    <!-- Tab links -->
+
+<div class="tab">
+  <button class="tablinks" onclick="openPage(event, 'Presentations')">Presentations</button>
+  <button class="tablinks" onclick="openPage(event, 'Chat')">Chat</button>
+</div>
+
+<div id="Presentations" class="tabcontent" style="display: block;">
+
 <p>
     The Travelers group, composed of both individuals and couples, typically meets from 5:00 PM to 7:00 PM on the 4th Sunday of the month from September through May.  The schedule for 2024-2025 may have some exceptions due to holidays.  Each month one or more members present hints and highlights about trips they have taken; from Yellowstone to Bhutan, from Ireland to Indonesia. Meetings are held in members’ homes or occasionally in a larger venue (which allows for more participants) and feature pot-luck food and beverage items. Members are requested to host, co-host, and/or present periodically.
 </p>
@@ -251,5 +297,86 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
   <script>
     console.log("Hello, I have downloaded!")
   </script>
+</div>
+
+<div id="Chat" class="tabcontent" style="display: block;">
+
+<textarea id="chat_text" style="width: 100%; height: 70px; padding: 10px;">
+</textarea>
+<button id="send_chat_btn" onclick="sendMessage()">Send</button>
+<div id="chat-box"/>
+
+<script>
+    const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
+    const client_chat = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+async function sendMessage() {
+  const author = window.currentUser;
+  const content = document.getElementById("chat_text").value.trim();
+
+  if (!author || !content) return;
+
+  to_insert =     {
+      author: author,
+      content: content,
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+    }
+  console.log("inserting ", to_insert)
+
+  await client_chat.from("messages").insert([to_insert]);
+
+  document.getElementById("chat_text").value = "";
+  await loadChatMessages(); // refresh after send
+}
+
+async function loadChatMessages() {
+  // console.log("Loading chat messages")
+  const { data, error } = await client_chat
+    .from("messages")
+    .select("*")
+    .order("time", { ascending: false });
+
+  if (error) {
+    console.error("Failed to load messages:", error);
+    return;
+  }
+
+  const chatBox = document.getElementById("chat-box");
+  const html = data.map(msg => {
+    // console.log(msg)
+    return(`<div><strong>${msg.author}</strong>:<small>${msg.time}</small><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
+  }
+  ).join("");
+  chatBox.innerHTML = html
+
+
+  // auto-scroll to bottom
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// auto-refresh every 50 seconds
+setInterval(loadChatMessages, 5000);
+document.addEventListener("DOMContentLoaded", loadChatMessages);
+
+document.getElementById("chat_text").addEventListener("keydown", function (event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault(); // prevent new line
+    sendMessage();          // your function
+  }
+});
+
+</script>
+
+
+
+
+</div>
 
 </body>
+
+</html>
