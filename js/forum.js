@@ -1,21 +1,25 @@
 
 async function loadThemes() {
     console.log("Loading themes")
-    const { themes, error } = await client
-        .from("themes")
-        .select("*");
-        
-    console.log("Finished")
-    console.log("error = ", error)
-    if (error) {
-        console.error("Failed to forum themes:", error);
-        return;
-    }
-    const forumBox = document.getElementById("forum_themes")
-    const html = themes.map(msg => {
-        console.log(msg)
-        return(`<div>Theme</div>`)
-    })
+  const { data, error } = await client
+    .from("themes")
+    .select("*")
+
+  if (error) {
+    console.error("Failed to load messages:", error);
+    return;
+  }
+
+  const themeBox = document.getElementById("forum_themes");
+
+  const html = data.map(msg => {
+    console.log(msg)
+    return(`<div><a>${msg.topic}</a><br>&nbsp;&nbsp;&nbsp; <small>${msg.description}</small></div><tr>`)
+  }
+  ).join("");
+  themeBox.innerHTML = html
+  themeBox.scrollTop = themeBox.scrollHeight;
 
 }
 
+document.addEventListener("DOMContentLoaded", loadThemes);
