@@ -21,11 +21,37 @@ async function renderThemes() {
     div.innerHTML += `<span class="theme-descr">${item.description}</span>`
     div.addEventListener("click", () => {
         console.log("You have clicked item ", item.theme_id)
+        renderRooms(item.theme_id)
     });
     themeBox.appendChild(div);
   })
   themeBox.scrollTop = themeBox.scrollHeight;
-
 }
+
+async function renderRooms(theme_id) {
+    console.log("renderRooms: ", theme_id);
+    const themeBox = document.getElementById("forum_themes");
+    themeBox.textContent = ""
+
+    const { data, error } = await client
+        .from("rooms")
+        .select("*")
+        .eq("theme_id", theme_id)
+    if(error) {
+        console.log("Rooms for theme ", theme_id, " loaded with error", error)
+    }
+    console.log("rooms = ", data)
+    data.map( (item) => {
+        const div = document.createElement("div")
+        div.innerHTML = "<hr>"
+        div.innerHTML +=  `<span class="theme-title">${item.topic}</span>`;
+        div.addEventListener("click", () => {
+            console.log("You have clicked room  ", item.room_id)
+        });
+        themeBox.appendChild(div)
+    })
+}
+
+
 
 document.addEventListener("DOMContentLoaded", renderThemes);
