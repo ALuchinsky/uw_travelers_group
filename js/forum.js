@@ -94,11 +94,15 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     messageAreaBox.addEventListener("keydown", function (event) {
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault(); // prevent new line
-    console.log("add message ", messageAreaBox.value)
+    sendForumMessage(theme_id, room_id, messageAreaBox.value)
   }
 });
     themeBox.appendChild(messageAreaBox)
 
+}
+
+async function sendForumMessage(theme_id, room_id, text) {
+    console.log(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
 }
 
 
