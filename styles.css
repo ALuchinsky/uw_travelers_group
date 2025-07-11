@@ -55,3 +55,12 @@
   border: 1px solid #ccc;
   border-top: none;
 }
+
+.theme-title {
+  color: green;
+}
+
+.theme-descr {
+  font-size: smaller;
+  font-style: italic;
+}

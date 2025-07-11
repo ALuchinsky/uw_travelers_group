@@ -12,9 +12,14 @@ async function loadThemes() {
 
   const themeBox = document.getElementById("forum_themes");
 
-  const html = data.map(msg => {
+  const html = "<hr>" + data.map(msg => {
     console.log(msg)
-    return(`<div><a>${msg.topic}</a><br>&nbsp;&nbsp;&nbsp; <small>${msg.description}</small></div><tr>`)
+    line = "<div>"
+    line += `<span class="theme-title">${msg.topic}</span>`
+    line += "<br>&nbsp;&nbsp;&nbsp; "
+    line += `<span class="theme-descr">${msg.description}</span>`
+    line += "</div><hr>"
+    return(line)
   }
   ).join("");
   themeBox.innerHTML = html
