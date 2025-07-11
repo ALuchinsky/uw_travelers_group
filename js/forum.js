@@ -89,6 +89,16 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         themeBox.appendChild(div)
     })
 
+    themeBox.innerHTML += "<br><hr>"
+    const messageAreaBox = document.createElement("textarea")
+    messageAreaBox.addEventListener("keydown", function (event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault(); // prevent new line
+    console.log("add message ", messageAreaBox.value)
+  }
+});
+    themeBox.appendChild(messageAreaBox)
+
 }
 
 
