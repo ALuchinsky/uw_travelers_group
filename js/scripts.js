@@ -50,10 +50,12 @@ function renderScheduleTable(data) {
   container.innerHTML = html;
 }
 
+const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
+const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+
 async function loadSchedule() {
-    const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
-    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
     const { data, error } = await client
       .from('schedule2025')
       .select('*')
