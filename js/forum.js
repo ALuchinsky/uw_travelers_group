@@ -12,8 +12,7 @@ async function renderThemes() {
 
   const themeBox = document.getElementById("forum_themes");
   themeBox.textContent = ""
-  themeBox.classList.remove("block");
-  themeBox.classList.add("active")
+  themeBox.innerHTML = "<div>Forum themes</div>"
   data.map( (item) => {
     const div = document.createElement("div");
     div.innerHTML = "<hr>"
@@ -22,17 +21,18 @@ async function renderThemes() {
     div.innerHTML += `<span class="theme-descr">${item.description}</span>`
     div.addEventListener("click", () => {
         console.log("You have clicked item ", item.theme_id)
-        renderRooms(item.theme_id)
+        renderRooms(item.theme_id, item.topic)
     });
     themeBox.appendChild(div);
   })
   themeBox.scrollTop = themeBox.scrollHeight;
 }
 
-async function renderRooms(theme_id) {
+async function renderRooms(theme_id, theme_topic) {
     console.log("renderRooms: ", theme_id);
     const themeBox = document.getElementById("forum_themes");
-    themeBox.textContent = ""
+    themeBox.innerHTML = `<div>Rooms for theme "${theme_topic}"</div>`
+
 
     const back_button = document.createElement("button")
     back_button.textContent = "Back"
@@ -53,20 +53,21 @@ async function renderRooms(theme_id) {
         div.innerHTML +=  `<span class="theme-title">${item.topic}</span>`;
         div.addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
-            renderMessages(item.room_id, theme_id)
+            renderMessages(item.room_id, item.topic, theme_id, theme_topic)
         });
         themeBox.appendChild(div)
     })
 }
 
-async function renderMessages(room_id, theme_id) {
+async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     console.log("renderMessages: ", room_id);
     const themeBox = document.getElementById("forum_themes");
-    themeBox.textContent = ""
+    themeBox.innerHTML = `<div>Messages for room "${room_topic}"</div>`
+
 
     const back_button = document.createElement("button")
     back_button.textContent = "Back"
-    back_button.addEventListener("click", () => {renderRooms(theme_id)})
+    back_button.addEventListener("click", () => {renderRooms(theme_id, theme_topic)})
     themeBox.appendChild(back_button)
 
 
