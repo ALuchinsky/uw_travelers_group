@@ -11,6 +11,7 @@ async function renderThemes() {
   }
 
   const themeBox = document.getElementById("forum_themes");
+  themeBox.textContent = ""
   themeBox.classList.remove("block");
   themeBox.classList.add("active")
   data.map( (item) => {
@@ -33,6 +34,11 @@ async function renderRooms(theme_id) {
     const themeBox = document.getElementById("forum_themes");
     themeBox.textContent = ""
 
+    const back_button = document.createElement("button")
+    back_button.textContent = "Back"
+    back_button.addEventListener("click", renderThemes)
+    themeBox.appendChild(back_button)
+
     const { data, error } = await client
         .from("rooms")
         .select("*")
@@ -47,16 +53,22 @@ async function renderRooms(theme_id) {
         div.innerHTML +=  `<span class="theme-title">${item.topic}</span>`;
         div.addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
-            renderMessages(item.room_id)
+            renderMessages(item.room_id, theme_id)
         });
         themeBox.appendChild(div)
     })
 }
 
-async function renderMessages(room_id) {
+async function renderMessages(room_id, theme_id) {
     console.log("renderMessages: ", room_id);
     const themeBox = document.getElementById("forum_themes");
     themeBox.textContent = ""
+
+    const back_button = document.createElement("button")
+    back_button.textContent = "Back"
+    back_button.addEventListener("click", () => {renderRooms(theme_id)})
+    themeBox.appendChild(back_button)
+
 
     const { data, error } = await client
         .from("forum_messages")
