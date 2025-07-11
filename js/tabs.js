@@ -27,6 +27,6 @@
 
 window.onload = function() {
   const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab") || "Presentations";
+  const tab = params.get("tab") || "Forum";
   openPage(null, tab);
 };

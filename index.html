@@ -40,6 +40,7 @@
 <div class="tab">
   <button class="tablinks" onclick="openPage(event, 'Presentations')">Presentations</button>
   <button class="tablinks" onclick="openPage(event, 'Chat')">Chat</button>
+  <button class="tablinks" onclick="openPage(event, 'Forum')">Forum</button>
 </div>
 <script src="./js/tabs.js"></script>
 
@@ -231,12 +232,14 @@ Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> download the
 
 <div id="Chat" class="tabcontent" style="display: block;">
 
-<textarea id="chat_text" style="width: 100%; height: 70px; padding: 10px;">
-</textarea>
-<div id="chat-box"/>
+    <textarea id="chat_text" style="width: 100%; height: 70px; padding: 10px;">
+    </textarea>
+    <div id="chat-box"></div>
+    <script src="./js/chat.js"></script>
+</div>
 
-<script src="./js/chat.js"></script>
-
+<div id="Forum" class="tabcontent" style="display: active;">
+    This is forum tab
 </div>
 
 </body>
