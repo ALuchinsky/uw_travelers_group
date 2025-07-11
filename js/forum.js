@@ -47,9 +47,35 @@ async function renderRooms(theme_id) {
         div.innerHTML +=  `<span class="theme-title">${item.topic}</span>`;
         div.addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
+            renderMessages(item.room_id)
         });
         themeBox.appendChild(div)
     })
+}
+
+async function renderMessages(room_id) {
+    console.log("renderMessages: ", room_id);
+    const themeBox = document.getElementById("forum_themes");
+    themeBox.textContent = ""
+
+    const { data, error } = await client
+        .from("forum_messages")
+        .select("*")
+        .eq("room_id", room_id)
+    if(error) {
+        console.log("Messages for room ", room_id, " loaded with error", error)
+    }
+    console.log("messages = ", data)
+    data.map( (item) => {
+        const div = document.createElement("div")
+        div.innerHTML = "<hr>"
+        div.innerHTML +=  `<span class="theme-title">${item.text}</span>`;
+        div.addEventListener("click", () => {
+            console.log("You have clicked message  ", item.message_id)
+        });
+        themeBox.appendChild(div)
+    })
+
 }
 
 
