@@ -1,5 +1,5 @@
 
-async function loadThemes() {
+async function renderThemes() {
     console.log("Loading themes")
   const { data, error } = await client
     .from("themes")
@@ -11,20 +11,21 @@ async function loadThemes() {
   }
 
   const themeBox = document.getElementById("forum_themes");
-
-  const html = "<hr>" + data.map(msg => {
-    console.log(msg)
-    line = "<div>"
-    line += `<span class="theme-title">${msg.topic}</span>`
-    line += "<br>&nbsp;&nbsp;&nbsp; "
-    line += `<span class="theme-descr">${msg.description}</span>`
-    line += "</div><hr>"
-    return(line)
-  }
-  ).join("");
-  themeBox.innerHTML = html
+  themeBox.classList.remove("block");
+  themeBox.classList.add("active")
+  data.map( (item) => {
+    const div = document.createElement("div");
+    div.innerHTML = "<hr>"
+    div.innerHTML +=  `<span class="theme-title">${item.topic}</span>`;
+    div.innerHTML += "<br>&nbsp;&nbsp;&nbsp; "
+    div.innerHTML += `<span class="theme-descr">${item.description}</span>`
+    div.addEventListener("click", () => {
+        console.log("You have clicked item ", item.theme_id)
+    });
+    themeBox.appendChild(div);
+  })
   themeBox.scrollTop = themeBox.scrollHeight;
 
 }
 
-document.addEventListener("DOMContentLoaded", loadThemes);
+document.addEventListener("DOMContentLoaded", renderThemes);
