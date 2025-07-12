@@ -157,10 +157,34 @@ async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text
   };
 
     const { data: insertData, error: insertError } = await client
-    .from('forum_messages')
-    .insert([to_insert])
-    .order("created_at", { ascending: true });
+        .from('forum_messages')
+        .insert([to_insert])
+        .order("created_at", { ascending: true });
 
+
+    const { data: countData, error: countError } = await client
+    .from("rooms")
+    .select("*")
+    .eq("room_id", room_id)
+    .single();
+    if (countError) {
+        console.log("Error loading room info line:", countError)
+    } else {
+        const currentCount = countData.num_messages;
+        console.log("currentCount = ", currentCount)
+        const {error: updateError} = await client
+            .from("rooms")
+            .update({num_messages: currentCount + 1})
+            .eq("room_id", room_id);
+        if(updateError) {
+            console.log("Update error: ", updateError)
+        } else {
+            console.log("num_messages incremented from room_id", room_id)
+        }
+    }
+
+
+    console.log("countData = ", countData)
     renderMessages(room_id, room_topic, theme_id, theme_topic) 
   
 }
