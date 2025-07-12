@@ -115,4 +115,20 @@
   color: darkgray;
 }
 
+.delete-button {
+  background-color: red; /* Sets the background color to red */
+  color: white; /* Sets the text color to white for contrast */
+  border: none; /* Removes the default button border */
+  padding: 10px 20px; /* Adds padding around the text */
+  border-radius: 5px; /* Rounds the corners slightly */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+}
 
+.create-button {
+  background-color: green; /* Sets the background color to green */
+  color: white; /* Sets the text color to white for contrast */
+  border: none; /* Removes the default button border */
+  padding: 10px 20px; /* Adds padding around the text */
+  border-radius: 5px; /* Rounds the corners slightly */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+}

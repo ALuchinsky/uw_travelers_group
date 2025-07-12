@@ -21,6 +21,7 @@ async function renderThemes() {
   themeBox.innerHTML = "<div>Forum themes</div>"
   
   const create_theme_button = document.createElement("button")
+    create_theme_button.classList.add("create-button")
   create_theme_button.textContent = "Create new theme"
   create_theme_button.addEventListener("click", () => {createNewTheme()})
   themeBox.appendChild(create_theme_button)
@@ -101,13 +102,16 @@ async function renderRooms(theme_id, theme_topic) {
     back_button.textContent = "Back"
     back_button.addEventListener("click", renderThemes)
     themeBox.appendChild(back_button)
+    themeBox.appendChild(document.createElement("br"))
 
     const create_room_button = document.createElement("button")
+    create_room_button.classList.add("create-button")
     create_room_button.textContent = "Create new room"
     create_room_button.addEventListener("click", async () => {createNewRoom(theme_id, theme_topic)})
     themeBox.appendChild(create_room_button)
 
     const delete_theme_button = document.createElement("button")
+    delete_theme_button.classList.add("delete-button")
     delete_theme_button.textContent = "Delete theme"
     delete_theme_button.addEventListener("click", () => {
         if (confirm("Are you sure you want to delete this theme? All rooms and messages will be deleted.")) {
@@ -338,8 +342,10 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         renderRooms(theme_id, theme_topic)
     })
     themeBox.appendChild(back_button)
+    themeBox.appendChild(document.createElement("br"))
 
     const delete_room_button = document.createElement("button")
+    delete_room_button.classList.add("delete-button")
     delete_room_button.textContent = "Delete room"
     delete_room_button.addEventListener("click", () => {
         if (confirm("Are you sure you want to delete this room? All messages will be deleted.")) {
