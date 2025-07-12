@@ -107,6 +107,16 @@ async function renderRooms(theme_id, theme_topic) {
     create_room_button.addEventListener("click", async () => {createNewRoom(theme_id, theme_topic)})
     themeBox.appendChild(create_room_button)
 
+    const delete_theme_button = document.createElement("button")
+    delete_theme_button.textContent = "Delete theme"
+    delete_theme_button.addEventListener("click", () => {
+        if (confirm("Are you sure you want to delete this theme? All rooms and messages will be deleted.")) {
+            deleteTheme(theme_id)
+            renderThemes()
+        }
+    })
+    themeBox.appendChild(delete_theme_button)
+
     const { data, error } = await client
         .from("rooms")
         .select("*")
@@ -139,6 +149,60 @@ async function renderRooms(theme_id, theme_topic) {
     themeBox.appendChild(rooms_table)
 }
 /**************** End of renderRooms */
+
+/*********
+ * Deletes theme and all rooms/messages inside it
+ */
+async function deleteTheme(theme_id) {
+    // Delete all rooms for this theme
+    const { data: roomsData, error: roomsError } = await client
+        .from("rooms")
+        .select("room_id")
+        .eq("theme_id", theme_id);
+
+    if (roomsError) {
+        console.error("Error loading rooms for theme:", roomsError);
+        return;
+    }
+
+    // Delete all messages for each room
+    if (roomsData && roomsData.length > 0) {
+        const roomIds = roomsData.map(r => r.room_id);
+        const { error: msgError } = await client
+            .from("forum_messages")
+            .delete()
+            .in("room_id", roomIds);
+        if (msgError) {
+            console.error("Error deleting messages:", msgError);
+        }
+    }
+
+    // Delete all rooms for this theme
+    if (roomsData && roomsData.length > 0) {
+        const roomIds = roomsData.map(r => r.room_id);
+        const { error: roomDeleteError } = await client
+            .from("rooms")
+            .delete()
+            .in("room_id", roomIds);
+        if (roomDeleteError) {
+            console.error("Error deleting rooms:", roomDeleteError);
+        }
+    }
+
+    // Delete the theme itself
+    const { error: themeDeleteError } = await client
+        .from("themes")
+        .delete()
+        .eq("theme_id", theme_id);
+    if (themeDeleteError) {
+        console.error("Error deleting theme:", themeDeleteError);
+    } else {
+        console.log("Theme deleted:", theme_id);
+    }
+
+    // Refresh themes list
+    renderThemes();
+}
 
 /*********
  * Deletes room and all messages from it, updates themes table
