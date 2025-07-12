@@ -49,8 +49,13 @@ async function renderRooms(theme_id, theme_topic) {
     console.log("rooms = ", data)
     data.map( (item) => {
         const div = document.createElement("div")
-        div.innerHTML = "<hr>"
-        div.innerHTML +=  `<span class="theme-title">${item.topic}</span>`;
+        div.innerHTML = `
+        <hr>
+        <table><tr>
+        <td>${item.topic}</td>
+        <td style="width:20px;">${item.num_messages}</td>
+        </tr></table>
+        `
         div.addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
             renderMessages(item.room_id, item.topic, theme_id, theme_topic)
@@ -151,13 +156,13 @@ async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text
     text: text
   };
 
-  const { data, error } = await client
+    const { data: insertData, error: insertError } = await client
     .from('forum_messages')
     .insert([to_insert])
     .order("created_at", { ascending: true });
 
-  if (error) console.error(error);
-  else console.log('✅ Inserted:', data);    renderMessages(room_id, room_topic, theme_id, theme_topic)
+    renderMessages(room_id, room_topic, theme_id, theme_topic) 
+  
 }
 
 
