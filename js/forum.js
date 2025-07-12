@@ -7,6 +7,7 @@ async function renderThemes() {
   const { data, error } = await client
     .from("themes")
     .select("*")
+    .order("theme_id")
 
   if (error) {
     console.error("Failed to load messages:", error);
@@ -206,11 +207,12 @@ async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text
         .order("created_at", { ascending: true });
 
 
+    // update num_messages for "rooms" table
     const { data: countData, error: countError } = await client
-    .from("rooms")
-    .select("*")
-    .eq("room_id", room_id)
-    .single();
+        .from("rooms")
+        .select("*")
+        .eq("room_id", room_id)
+        .single();
     if (countError) {
         console.log("Error loading room info line:", countError)
     } else {
@@ -227,6 +229,27 @@ async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text
         }
     }
 
+    // update num_messages for "themes" table
+    const { data: countData_themes, error: countError_themes } = await client
+        .from("themes")
+        .select("*")
+        .eq("theme_id", theme_id)
+        .single();
+    if (countError_themes) {
+        console.log("Error loading themes info line:", countError_themes)
+    } else {
+        const currentCount = countData_themes.num_messages;
+        console.log("currentCount = ", currentCount)
+        const {error: updateError} = await client
+            .from("themes")
+            .update({num_messages: currentCount + 1})
+            .eq("theme_id", theme_id);
+        if(updateError) {
+            console.log("Update error: ", updateError)
+        } else {
+            console.log("num_messages incremented from theme_id", theme_id)
+        }
+    }
 
     console.log("countData = ", countData)
     renderMessages(room_id, room_topic, theme_id, theme_topic) 
