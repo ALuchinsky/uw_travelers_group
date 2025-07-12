@@ -64,6 +64,9 @@ async function renderRooms(theme_id, theme_topic) {
     })
 }
 
+/************************
+ * Renders messages from particular room off particular topic
+ */
 async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     console.log("renderMessages: ", room_id);
     const themeBox = document.getElementById("forum_themes");
@@ -87,7 +90,19 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     if(error) {
         console.log("Messages for room ", room_id, " loaded with error", error)
     }
+    
+    
+
     console.log("messages = ", data)
+    const messages_table = document.createElement("table")
+    messages_table.classList.add("bordered-table")
+    const header = document.createElement("tr")
+    header.innerHTML = `
+        <th style="width: 100px; font-size: small;"> Author</th>
+        <th>Message</th>
+    `
+    messages_table.appendChild(header)
+    // Loop through all messages and add them to table
     data.map( (item) => {
         const div = document.createElement("div")
         const isoString = item.created_at;
@@ -111,10 +126,8 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
         const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
 
-        div.innerHTML = `
-        <hr>
-        <table>
-            <tr>
+        const row = document.createElement("tr")
+        row.innerHTML = `
             <td style="width: 100px; font-size: small;">
                 <span style="color: green;">${item.author_id}</span>
                 <br>
@@ -123,14 +136,13 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
                 ${localTime}
             </td>
             <td>${item.text}</td>
-            </tr>
-        </table>
         `;
-        div.addEventListener("click", () => {
+        row.addEventListener("click", () => {
             console.log("You have clicked message  ", item.message_id)
         });
-        themeBox.appendChild(div)
+        messages_table.appendChild(row)
     })
+    themeBox.appendChild(messages_table)
 
     // themeBox.innerHTML += "<br><hr>"
     themeBox.appendChild(document.createElement("br"))
@@ -146,6 +158,7 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     themeBox.appendChild(messageAreaBox)
 
 }
+/****************** End of  renderMessages*/
 
 async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text) {
     console.log(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
