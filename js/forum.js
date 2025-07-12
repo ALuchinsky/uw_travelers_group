@@ -19,6 +19,40 @@ async function renderThemes() {
   const themeBox = document.getElementById("forum_themes");
   themeBox.textContent = ""
   themeBox.innerHTML = "<div>Forum themes</div>"
+  
+  const create_theme_button = document.createElement("button")
+  create_theme_button.textContent = "Create new theme"
+  create_theme_button.addEventListener("click", () => {
+    console.log("Create new theme button clicked")
+    const theme_title = prompt("Enter theme title")
+    const theme_descr = prompt("Enter theme description")
+    if(theme_title && theme_descr) {
+      console.log("Creating new theme with title: ", theme_title, " and description: ", theme_descr)
+      const to_insert = {
+        topic: theme_title,
+        description: theme_descr,
+        creater_ID: window.currentUser,
+        num_rooms: 0,
+        num_messages: 0
+      };
+      client
+        .from('themes')
+        .insert([to_insert])
+        .then(({ data, error }) => {
+          if (error) {
+            console.error("Error creating theme:", error);
+          } else {
+            console.log("Theme created successfully:", data);
+            renderThemes(); // Refresh the themes list
+          }
+        });
+    } else {
+      console.log("Theme title or description is empty, not creating theme")
+    }
+  })
+  themeBox.appendChild(create_theme_button)
+  
+  
   const themes_table = document.createElement("table")
   themes_table.classList.add("bordered-table")
   const header = document.createElement("tr")
@@ -65,6 +99,57 @@ async function renderRooms(theme_id, theme_topic) {
     back_button.textContent = "Back"
     back_button.addEventListener("click", renderThemes)
     themeBox.appendChild(back_button)
+
+    const create_room_button = document.createElement("button")
+    create_room_button.textContent = "Create new room"
+    create_room_button.addEventListener("click", async () => {
+        console.log("Create new room button clicked")
+        const room_topic = prompt("Enter room topic")
+        if(room_topic) {
+            console.log("Creating new room with topic: ", room_topic)
+            const to_insert = {
+                theme_id: theme_id,
+                topic: room_topic,
+                num_messages: 0
+            };
+            client
+                .from('rooms')
+                .insert([to_insert])
+                .then(({ data, error }) => {
+                    if (error) {
+                        console.error("Error creating room:", error);
+                    } else {
+                        console.log("Room created successfully:", data);
+                        renderRooms(theme_id, theme_topic); // Refresh the rooms list
+                    }
+                });
+
+                // update num_rooms for "themes" table
+                const { data: countData, error: countError } = await client
+                    .from("themes")
+                    .select("*")
+                    .eq("theme_id", theme_id)
+                    .single();
+                if (countError) {       
+                    console.log("Error loading themes info line:", countError)
+                } else {
+                    const currentCount = countData.num_rooms;
+                    console.log("currentCount = ", currentCount)
+                    const {error: updateError} = await client
+                        .from("themes")
+                        .update({num_rooms: currentCount + 1})
+                        .eq("theme_id", theme_id);
+                    if(updateError) {
+                        console.log("Update error: ", updateError)
+                    } else {
+                        console.log("num_rooms incremented from theme_id", theme_id)
+                    }
+                }
+        } else {
+            console.log("Room topic is empty, not creating room")
+        }
+    })
+    themeBox.appendChild(create_room_button)
 
     const { data, error } = await client
         .from("rooms")
