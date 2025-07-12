@@ -85,8 +85,42 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     console.log("messages = ", data)
     data.map( (item) => {
         const div = document.createElement("div")
-        div.innerHTML = "<hr>"
-        div.innerHTML +=  `<span class="theme-title">${item.text}</span>`;
+        const isoString = item.created_at;
+        const date = new Date(isoString);
+        const dateOptions = {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            timeZone: "America/New_York"
+        };
+
+        // Options for the time part
+        const timeOptions = {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "America/New_York"
+        };
+
+        // Generate strings
+        const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
+        const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
+
+        div.innerHTML = `
+        <hr>
+        <table>
+            <tr>
+            <td style="width: 100px; font-size: small;">
+                <span style="color: green;">${item.author_id}</span>
+                <br>
+                ${localDate}
+                <br>
+                ${localTime}
+            </td>
+            <td>${item.text}</td>
+            </tr>
+        </table>
+        `;
         div.addEventListener("click", () => {
             console.log("You have clicked message  ", item.message_id)
         });
