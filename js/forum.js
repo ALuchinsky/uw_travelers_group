@@ -1,4 +1,7 @@
 
+/************
+ * Renders all themes on this forum
+ */
 async function renderThemes() {
     console.log("Loading themes")
   const { data, error } = await client
@@ -8,25 +11,44 @@ async function renderThemes() {
   if (error) {
     console.error("Failed to load messages:", error);
     return;
+  } else {
+    console.log("Themes loaded:", data)
   }
 
   const themeBox = document.getElementById("forum_themes");
   themeBox.textContent = ""
   themeBox.innerHTML = "<div>Forum themes</div>"
+  const themes_table = document.createElement("table")
+  themes_table.classList.add("bordered-table")
+  const header = document.createElement("tr")
+  header.innerHTML = `
+    <th> Topic </th>
+    <th style="width: 40px"> # rooms</th>
+    <th style="width: 80px"> # messages</th>
+  `
+  themes_table.appendChild(header)
+
   data.map( (item) => {
-    const div = document.createElement("div");
-    div.innerHTML = "<hr>"
-    div.innerHTML +=  `<span class="theme-title">${item.topic}</span>`;
-    div.innerHTML += "<br>&nbsp;&nbsp;&nbsp; "
-    div.innerHTML += `<span class="theme-descr">${item.description}</span>`
-    div.addEventListener("click", () => {
+    const row = document.createElement("tr")
+    row.innerHTML = `
+    <td>
+        <span class="theme-title">${item.topic}</span>
+        <br>&nbsp;&nbsp;&nbsp;
+        <span class="theme-descr">${item.description}</span>
+    </td>
+    <td style="width: 40px"> ${item.num_rooms}</td>
+    <td style="width: 80px"> ${item.num_messages}</td>
+    `
+    row.addEventListener("click", () => {
         console.log("You have clicked item ", item.theme_id)
         renderRooms(item.theme_id, item.topic)
     });
-    themeBox.appendChild(div);
+    themes_table.appendChild(row);
   })
+  themeBox.appendChild(themes_table);
   themeBox.scrollTop = themeBox.scrollHeight;
 }
+/****** End of  renderThemes */
 
 
 /****************
