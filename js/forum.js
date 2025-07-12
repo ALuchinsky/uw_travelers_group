@@ -104,7 +104,112 @@ async function renderRooms(theme_id, theme_topic) {
 
     const create_room_button = document.createElement("button")
     create_room_button.textContent = "Create new room"
-    create_room_button.addEventListener("click", async () => {
+    create_room_button.addEventListener("click", async () => {createNewRoom(theme_id, theme_topic)})
+    themeBox.appendChild(create_room_button)
+
+    const { data, error } = await client
+        .from("rooms")
+        .select("*")
+        .eq("theme_id", theme_id)
+    if(error) {
+        console.log("Rooms for theme ", theme_id, " loaded with error", error)
+    }
+    console.log("rooms = ", data)
+
+    const rooms_table = document.createElement("table")
+    rooms_table.classList.add("bordered-table")
+    const header = document.createElement("tr")
+    header.innerHTML = `
+        <th class="rooms-list-topic"> Topic </th>
+        <th class="rooms-list-num-rooms"> # MSG</th>
+    `
+    rooms_table.appendChild(header)
+    data.map( (item) => {
+        const row = document.createElement("tr")
+        row.innerHTML = `
+        <td class="rooms-list-topic">${item.topic}</td>
+        <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
+        `
+        row.addEventListener("click", () => {
+            console.log("You have clicked room  ", item.room_id)
+            renderMessages(item.room_id, item.topic, theme_id, theme_topic)
+        });
+        rooms_table.appendChild(row)
+    })
+    themeBox.appendChild(rooms_table)
+}
+/**************** End of renderRooms */
+
+/*********
+ * Deletes room and all messages from it, updates themes table
+ */
+async function deleteRoom(room_id, theme_id, theme_topic) {
+    // Delete all messages from this room
+    const { error: msgError } = await client
+        .from("forum_messages")
+        .delete()
+        .eq("room_id", room_id);
+    if (msgError) {
+        console.error("Error deleting messages:", msgError);
+    } else {
+        console.log("All messages deleted for room", room_id);
+    }
+
+    // Delete the room itself
+    const { error: roomError } = await client
+        .from("rooms")
+        .delete()
+        .eq("room_id", room_id);
+    if (roomError) {
+        console.error("Error deleting room:", roomError);
+        return;
+    } else {
+        console.log("Room deleted:", room_id);
+    }
+
+    // Update num_rooms and num_messages in themes table
+    const { data: themeData, error: themeError } = await client
+        .from("themes")
+        .select("*")
+        .eq("theme_id", theme_id)
+        .single();
+    if (themeError) {
+        console.error("Error loading theme info:", themeError);
+    } else {
+        // Count remaining rooms for this theme
+        const { data: roomsData, error: roomsError } = await client
+            .from("rooms")
+            .select("room_id")
+            .eq("theme_id", theme_id);
+        const num_rooms = roomsError ? 0 : roomsData.length;
+
+        // Count remaining messages for this theme
+        const { data: messagesData, error: messagesError } = await client
+            .from("forum_messages")
+            .select("message_id")
+            .in("room_id", roomsData.map(r => r.room_id));
+        const num_messages = messagesError ? 0 : messagesData.length;
+
+        const { error: updateError } = await client
+            .from("themes")
+            .update({ num_rooms, num_messages })
+            .eq("theme_id", theme_id);
+        if (updateError) {
+            console.error("Error updating theme counts:", updateError);
+        } else {
+            console.log("Theme counts updated for theme_id", theme_id);
+        }
+    }
+
+    // Refresh rooms list
+    renderRooms(theme_id, theme_topic);
+}
+/**************** End of deleteRoom */
+
+/****  
+ * Creates new room for the particular theme
+ */
+async function createNewRoom(theme_id, theme_topic){
         console.log("Create new room button clicked")
         const room_topic = prompt("Enter room topic")
         if(room_topic) {
@@ -150,40 +255,8 @@ async function renderRooms(theme_id, theme_topic) {
         } else {
             console.log("Room topic is empty, not creating room")
         }
-    })
-    themeBox.appendChild(create_room_button)
-
-    const { data, error } = await client
-        .from("rooms")
-        .select("*")
-        .eq("theme_id", theme_id)
-    if(error) {
-        console.log("Rooms for theme ", theme_id, " loaded with error", error)
     }
-    console.log("rooms = ", data)
-
-    const rooms_table = document.createElement("table")
-    rooms_table.classList.add("bordered-table")
-    const header = document.createElement("tr")
-    header.innerHTML = `
-        <th class="rooms-list-topic"> Topic </th>
-        <th class="rooms-list-num-rooms"> # MSG</th>
-    `
-    rooms_table.appendChild(header)
-    data.map( (item) => {
-        const row = document.createElement("tr")
-        row.innerHTML = `
-        <td class="rooms-list-topic">${item.topic}</td>
-        <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
-        `
-        row.addEventListener("click", () => {
-            console.log("You have clicked room  ", item.room_id)
-            renderMessages(item.room_id, item.topic, theme_id, theme_topic)
-        });
-        rooms_table.appendChild(row)
-    })
-    themeBox.appendChild(rooms_table)
-}
+/***   End of createNewRoom */
 
 /************************
  * Renders messages from particular room off particular topic
@@ -202,6 +275,15 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     })
     themeBox.appendChild(back_button)
 
+    const delete_room_button = document.createElement("button")
+    delete_room_button.textContent = "Delete room"
+    delete_room_button.addEventListener("click", () => {
+        if (confirm("Are you sure you want to delete this room? All messages will be deleted.")) {
+            deleteRoom(room_id, theme_id, theme_topic)
+            renderRooms(theme_id, theme_topic)
+        }
+    })
+    themeBox.appendChild(delete_room_button)
 
     const { data, error } = await client
         .from("forum_messages")
