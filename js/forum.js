@@ -78,6 +78,7 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         .from("forum_messages")
         .select("*")
         .eq("room_id", room_id)
+        .order("created_at", { ascending: true });
     if(error) {
         console.log("Messages for room ", room_id, " loaded with error", error)
     }
@@ -112,12 +113,14 @@ async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text
   const to_insert = {
     room_id: room_id,
     author_id: window.currentUser,
+    created_at: new Date().toISOString(),
     text: text
   };
 
   const { data, error } = await client
     .from('forum_messages')
-    .insert([to_insert]);
+    .insert([to_insert])
+    .order("created_at", { ascending: true });
 
   if (error) console.error(error);
   else console.log('✅ Inserted:', data);    renderMessages(room_id, room_topic, theme_id, theme_topic)
