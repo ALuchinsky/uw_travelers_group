@@ -72,7 +72,7 @@ async function renderThemes() {
         <span class="theme-descr">${item.description}</span>
     </td>
     <td class = "theme-list-num-rooms"> ${item.num_rooms}</td>
-    <td class="theme-list-num-messages"> ${item.num_messages}</td>
+    <td class="theme-list-num-messages"> ${ item.num_messages ? item.num_messages : 0}</td>
     `
     row.addEventListener("click", () => {
         console.log("You have clicked item ", item.theme_id)
