@@ -100,15 +100,27 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     messageAreaBox.addEventListener("keydown", function (event) {
     if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault(); // prevent new line
-        sendForumMessage(theme_id, room_id, messageAreaBox.value)
+        sendForumMessage(room_id, room_topic, theme_id, theme_topic, messageAreaBox.value)
     }
     });
     themeBox.appendChild(messageAreaBox)
 
 }
 
-async function sendForumMessage(theme_id, room_id, text) {
+async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text) {
     console.log(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
+  const to_insert = {
+    room_id: room_id,
+    author_id: window.currentUser,
+    text: text
+  };
+
+  const { data, error } = await client
+    .from('forum_messages')
+    .insert([to_insert]);
+
+  if (error) console.error(error);
+  else console.log('✅ Inserted:', data);    renderMessages(room_id, room_topic, theme_id, theme_topic)
 }
 
 
