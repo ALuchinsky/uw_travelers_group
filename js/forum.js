@@ -28,6 +28,10 @@ async function renderThemes() {
   themeBox.scrollTop = themeBox.scrollHeight;
 }
 
+
+/****************
+ * Render rooms list of the particular theme
+ */
 async function renderRooms(theme_id, theme_topic) {
     console.log("renderRooms: ", theme_id);
     const themeBox = document.getElementById("forum_themes");
@@ -47,21 +51,28 @@ async function renderRooms(theme_id, theme_topic) {
         console.log("Rooms for theme ", theme_id, " loaded with error", error)
     }
     console.log("rooms = ", data)
+
+    const rooms_table = document.createElement("table")
+    rooms_table.classList.add("bordered-table")
+    const header = document.createElement("tr")
+    header.innerHTML = `
+        <th> Topic </th>
+        <th style="width:40px;"> # replies</th>
+    `
+    rooms_table.appendChild(header)
     data.map( (item) => {
-        const div = document.createElement("div")
-        div.innerHTML = `
-        <hr>
-        <table><tr>
+        const row = document.createElement("tr")
+        row.innerHTML = `
         <td>${item.topic}</td>
-        <td style="width:20px;">${item.num_messages}</td>
-        </tr></table>
+        <td style="width:40px;"> ${item.num_messages} </td>
         `
-        div.addEventListener("click", () => {
+        row.addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
             renderMessages(item.room_id, item.topic, theme_id, theme_topic)
         });
-        themeBox.appendChild(div)
+        rooms_table.appendChild(row)
     })
+    themeBox.appendChild(rooms_table)
 }
 
 /************************
@@ -104,7 +115,6 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     messages_table.appendChild(header)
     // Loop through all messages and add them to table
     data.map( (item) => {
-        const div = document.createElement("div")
         const isoString = item.created_at;
         const date = new Date(isoString);
         const dateOptions = {
@@ -144,7 +154,6 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     })
     themeBox.appendChild(messages_table)
 
-    // themeBox.innerHTML += "<br><hr>"
     themeBox.appendChild(document.createElement("br"))
     themeBox.appendChild(document.createElement("hr"))
     themeBox.appendChild(document.createElement("hr"))
