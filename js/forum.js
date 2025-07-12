@@ -24,8 +24,8 @@ async function renderThemes() {
   const header = document.createElement("tr")
   header.innerHTML = `
     <th> Topic </th>
-    <th style="width: 40px"> # rooms</th>
-    <th style="width: 80px"> # messages</th>
+    <th "theme-list-num-rooms"> # RMS</th>
+    <th class="theme-list-num-messages"> # MSG</th>
   `
   themes_table.appendChild(header)
 
@@ -37,8 +37,8 @@ async function renderThemes() {
         <br>&nbsp;&nbsp;&nbsp;
         <span class="theme-descr">${item.description}</span>
     </td>
-    <td style="width: 40px"> ${item.num_rooms}</td>
-    <td style="width: 80px"> ${item.num_messages}</td>
+    <td class = "theme-list-num-rooms"> ${item.num_rooms}</td>
+    <td class="theme-list-num-messages"> ${item.num_messages}</td>
     `
     row.addEventListener("click", () => {
         console.log("You have clicked item ", item.theme_id)
@@ -79,15 +79,15 @@ async function renderRooms(theme_id, theme_topic) {
     rooms_table.classList.add("bordered-table")
     const header = document.createElement("tr")
     header.innerHTML = `
-        <th> Topic </th>
-        <th style="width:40px;"> # replies</th>
+        <th class="rooms-list-topic"> Topic </th>
+        <th class="rooms-list-num-rooms"> # MSG</th>
     `
     rooms_table.appendChild(header)
     data.map( (item) => {
         const row = document.createElement("tr")
         row.innerHTML = `
-        <td>${item.topic}</td>
-        <td style="width:40px;"> ${item.num_messages} </td>
+        <td class="rooms-list-topic">${item.topic}</td>
+        <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
         `
         row.addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
@@ -133,7 +133,7 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     const header = document.createElement("tr")
     header.innerHTML = `
         <th style="width: 100px; font-size: small;"> Author</th>
-        <th>Message</th>
+        <th class="messages-list-text">Message</th>
     `
     messages_table.appendChild(header)
     // Loop through all messages and add them to table
@@ -161,14 +161,14 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
 
         const row = document.createElement("tr")
         row.innerHTML = `
-            <td style="width: 100px; font-size: small;">
-                <span style="color: green;">${item.author_id}</span>
+            <td class="messages-list-info">
+                <span class="messages-list-info-author">${item.author_id}</span>
                 <br>
-                ${localDate}
+                <span class="message-list-info-date">${localDate}</span
                 <br>
-                ${localTime}
+                <span class="messages-list-info-time">${localTime}</span>
             </td>
-            <td>${item.text}</td>
+            <td class="messages-list-text">${item.text}</td>
         `;
         row.addEventListener("click", () => {
             console.log("You have clicked message  ", item.message_id)

@@ -56,6 +56,17 @@
   border-top: none;
 }
 
+---------------
+-- Forum styles
+---------------
+.bordered-table {
+  border-collapse: collapse;
+}
+.bordered-table th, .bordered-table td {
+  border: 1px solid black;
+}
+
+
 .theme-title {
   color: green;
 }
@@ -65,10 +76,43 @@
   font-style: italic;
 }
 
+.theme-list-num-messages {
+  text-align: center;
+  width: 5px;
+}
 
-.bordered-table {
-  border-collapse: collapse;
+.theme-list-num-rooms {
+  text-align: center;
+  width: 10px;
 }
-.bordered-table th, .bordered-table td {
-  border: 1px solid black;
+
+.rooms-list-num-rooms {
+  text-align: center;
+  width: 10px;
 }
+
+.rooms-list-topic {
+  color: darkred;
+}
+
+.messages-list-text {
+  color: darkblue;
+  padding-left: 10px;
+}
+
+.messages-list-info {
+  width: 100px;
+  font-size: small;
+}
+
+.messages-list-info-author {
+  color: green;
+}
+.messages-list-info-date {
+  color: gray;
+}
+.messages-list-info-time {
+  color: darkgray;
+}
+
+
