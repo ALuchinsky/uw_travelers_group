@@ -2,6 +2,16 @@
 /************
  * Renders all themes on this forum
  */
+
+// Helper function for double confirmation
+function doubleConfirm(message1, message2) {
+    if (confirm(message1)) {
+        return confirm(message2);
+    }
+    return false;
+}
+
+
 async function renderThemes() {
     console.log("Loading themes")
   const { data, error } = await client
@@ -114,7 +124,9 @@ async function renderRooms(theme_id, theme_topic) {
     delete_theme_button.classList.add("delete-button")
     delete_theme_button.textContent = "Delete theme"
     delete_theme_button.addEventListener("click", () => {
-        if (confirm("Are you sure you want to delete this theme? All rooms and messages will be deleted.")) {
+        if (doubleConfirm(
+            "Are you sure you want to delete this theme? All rooms and messages will be deleted.",
+            "Please, rethink, this action cannot be undone.")) {
             deleteTheme(theme_id)
             renderThemes()
         }
@@ -348,7 +360,9 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     delete_room_button.classList.add("delete-button")
     delete_room_button.textContent = "Delete room"
     delete_room_button.addEventListener("click", () => {
-        if (confirm("Are you sure you want to delete this room? All messages will be deleted.")) {
+        if (doubleConfirm(
+            "Are you sure you want to delete this room? All messages will be deleted.",
+            "Please, rethink, this action cannot be undone.")) {
             deleteRoom(room_id, theme_id, theme_topic)
             renderRooms(theme_id, theme_topic)
         }
