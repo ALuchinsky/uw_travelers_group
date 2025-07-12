@@ -66,8 +66,11 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
 
 
     const back_button = document.createElement("button")
-    back_button.textContent = "Back"
-    back_button.addEventListener("click", () => {renderRooms(theme_id, theme_topic)})
+    back_button.textContent = "Back to rooms"
+    back_button.addEventListener("click", () => {
+        console.log("!!!")
+        renderRooms(theme_id, theme_topic)
+    })
     themeBox.appendChild(back_button)
 
 
@@ -89,14 +92,17 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         themeBox.appendChild(div)
     })
 
-    themeBox.innerHTML += "<br><hr>"
+    // themeBox.innerHTML += "<br><hr>"
+    themeBox.appendChild(document.createElement("br"))
+    themeBox.appendChild(document.createElement("hr"))
+    themeBox.appendChild(document.createElement("hr"))
     const messageAreaBox = document.createElement("textarea")
     messageAreaBox.addEventListener("keydown", function (event) {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault(); // prevent new line
-    sendForumMessage(theme_id, room_id, messageAreaBox.value)
-  }
-});
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault(); // prevent new line
+        sendForumMessage(theme_id, room_id, messageAreaBox.value)
+    }
+    });
     themeBox.appendChild(messageAreaBox)
 
 }
