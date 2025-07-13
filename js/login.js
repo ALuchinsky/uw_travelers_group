@@ -52,8 +52,18 @@ async function loginUser() {
     }
 
     if(usersData.length > 0) {
-        name = usersData[0].display_name; // use display name if available
-        window.admin = usersData[0].admin; // set admin status
+        const password = prompt("Enter your password:");
+        console.log("password", password, "usersData[0].password", usersData[0].password);
+        if (!password) {
+            alert("Password is required.");
+            name = "unknown"; // reset name if no password provided
+        } else if (usersData[0].password !== password) {
+            alert("Incorrect password.");
+            name = "unknown"; // reset name if password is incorrect
+        } else {
+            name = usersData[0].display_name; // use display name if available
+            window.admin = usersData[0].admin; // set admin status
+        }
     }
   
     console.log("usersData", usersData, "usersError", usersError);
