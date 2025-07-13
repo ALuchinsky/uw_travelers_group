@@ -72,7 +72,7 @@ async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_to
 async function renderThemes() {
     console.log("Loading themes")
 
-    data = await loadDataFromSupabase("themes", {});
+    data = await loadDataFromSupabase("themes", {}, order = "theme_id");
     if (!data) {
         console.log("No themes found, creating default theme");
         return;
@@ -219,18 +219,8 @@ async function renderRooms(theme_id, theme_topic) {
  * Deletes theme and all rooms/messages inside it
  */
 async function deleteTheme(theme_id) {
-    // Delete all rooms for this theme
-    // const { data: roomsData, error: roomsError } = await client
-    //     .from("rooms")
-    //     .select("room_id")
-    //     .eq("theme_id", theme_id);
-
-    // if (roomsError) {
-    //     console.error("Error loading rooms for theme:", roomsError);
-    //     return;
-    // }
-    const data = await loadDataFromSupabase("rooms", { theme_id: theme_id });
-    if(!data) {
+    const roomsData = await loadDataFromSupabase("rooms", { theme_id: theme_id });
+    if(!roomsData) {
         return;
     }
 
@@ -301,37 +291,37 @@ async function deleteRoom(room_id, theme_id, theme_topic) {
     }
 
     // Update num_rooms and num_messages in themes table
-    const { data: themeData, error: themeError } = await client
+    // const { data: themeData, error: themeError } = await client
+    //     .from("themes")
+    //     .select("*")
+    //     .eq("theme_id", theme_id)
+    //     .single();
+    // const themeData = await loadDataFromSupabase("themes", { theme_id: theme_id });
+    // if (!themeData || themeData.length === 0) {
+    //     console.error("Theme not found or no data returned for theme_id:", theme_id);
+    //     return;
+    // }
+
+    // Update num_rooms and num_messages in themes table
+    const roomsData = await loadDataFromSupabase("rooms", { theme_id: theme_id });
+    const num_rooms = roomsData.length;
+
+    // Count remaining messages for this theme
+    // const { data: messagesData, error: messagesError } = await client
+    //     .from("forum_messages")
+    //     .select("message_id")
+    //     .in("room_id", roomsData.map(r => r.room_id));
+    const messagesData = await loadDataFromSupabase("forum_messages", { room_id: roomsData.map(r => r.room_id) });        
+    const num_messages = messagesData.length;
+
+    const { error: updateError } = await client
         .from("themes")
-        .select("*")
-        .eq("theme_id", theme_id)
-        .single();
-    if (themeError) {
-        console.error("Error loading theme info:", themeError);
+        .update({ num_rooms, num_messages })
+        .eq("theme_id", theme_id);
+    if (updateError) {
+        console.error("Error updating theme counts:", updateError);
     } else {
-        // Count remaining rooms for this theme
-        const { data: roomsData, error: roomsError } = await client
-            .from("rooms")
-            .select("room_id")
-            .eq("theme_id", theme_id);
-        const num_rooms = roomsError ? 0 : roomsData.length;
-
-        // Count remaining messages for this theme
-        const { data: messagesData, error: messagesError } = await client
-            .from("forum_messages")
-            .select("message_id")
-            .in("room_id", roomsData.map(r => r.room_id));
-        const num_messages = messagesError ? 0 : messagesData.length;
-
-        const { error: updateError } = await client
-            .from("themes")
-            .update({ num_rooms, num_messages })
-            .eq("theme_id", theme_id);
-        if (updateError) {
-            console.error("Error updating theme counts:", updateError);
-        } else {
-            console.log("Theme counts updated for theme_id", theme_id);
-        }
+        console.log("Theme counts updated for theme_id", theme_id);
     }
 
     // Refresh rooms list
