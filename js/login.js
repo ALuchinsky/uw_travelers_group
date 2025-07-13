@@ -16,7 +16,14 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("login-status").textContent = `Logged in as ${currentUser}`;
     document.getElementById("username").value = stored;
   }
-});
+  const adminStored = localStorage.getItem("admin");
+  if (adminStored) {
+    window.admin = adminStored === "true"; // convert string to boolean
+  } else {
+    window.admin = false; // default to false if not set
+  }
+  console.log("currentUser", currentUser, "admin", window.admin);
+})
 
 /******
  * Logs in with the requested user name
@@ -54,6 +61,9 @@ async function loginUser() {
 
     window.currentUser = name;
     localStorage.setItem("currentUser", name);
+    localStorage.setItem("admin", window.admin);
     document.getElementById("login-status").textContent = `Logged in as ${window.currentUser}`;
+
+    window.location.reload(); // reload to apply changes
 }
 
