@@ -109,7 +109,8 @@ async function renderRooms(theme_id, theme_topic) {
 
 
     const back_button = document.createElement("button")
-    back_button.textContent = "Back"
+    back_button.textContent = "Back to themes"
+    back_button.classList.add("back-button")
     back_button.addEventListener("click", renderThemes)
     themeBox.appendChild(back_button)
     themeBox.appendChild(document.createElement("br"))
@@ -349,6 +350,7 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
 
     const back_button = document.createElement("button")
     back_button.textContent = "Back to rooms"
+    back_button.classList.add("back-button")
     back_button.addEventListener("click", () => {
         console.log("!!!")
         renderRooms(theme_id, theme_topic)
