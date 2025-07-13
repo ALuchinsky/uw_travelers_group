@@ -55,3 +55,121 @@
   border: 1px solid #ccc;
   border-top: none;
 }
+
+---------------
+-- Forum styles
+---------------
+.bordered-table {
+  border-collapse: collapse;
+}
+.bordered-table th, .bordered-table td {
+  border: 1px solid black;
+}
+
+
+.theme-title {
+  color: green;
+}
+
+.theme-descr {
+  font-size: smaller;
+  font-style: italic;
+}
+
+.theme-list-num-messages {
+  text-align: center;
+  width: 5px;
+}
+
+.theme-list-num-rooms {
+  text-align: center;
+  width: 10px;
+}
+
+.rooms-list-num-rooms {
+  text-align: center;
+  width: 10px;
+}
+
+.rooms-list-topic {
+  color: darkred;
+}
+
+.messages-list-text {
+  color: darkblue;
+  padding-left: 10px;
+}
+
+.messages-list-info {
+  width: 100px;
+  font-size: small;
+}
+
+.messages-list-info-author {
+  color: green;
+}
+.messages-list-info-date {
+  color: gray;
+}
+.messages-list-info-time {
+  color: darkgray;
+}
+
+.delete-button {
+  background-color: red; /* Sets the background color to red */
+  color: white; /* Sets the text color to white for contrast */
+  border: none; /* Removes the default button border */
+  padding: 10px 20px; /* Adds padding around the text */
+  border-radius: 5px; /* Rounds the corners slightly */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+  margin: 5px; /* Adds some space around the button */
+}
+.delete-button:hover {
+  background-color: darkred; /* Darkens the button on hover */
+}
+.delete-button:active {
+  background-color: maroon; /* Darkens the button further when clicked */
+}
+.delete-button:focus {
+  outline: none; /* Removes the focus outline */
+}
+
+.create-button {
+  background-color: green; /* Sets the background color to green */
+  color: white; /* Sets the text color to white for contrast */
+  border: none; /* Removes the default button border */
+  padding: 10px 20px; /* Adds padding around the text */
+  border-radius: 5px; /* Rounds the corners slightly */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+  margin: 5px; /* Adds some space around the button */
+}
+.create-button:hover {
+  background-color: darkgreen; /* Darkens the button on hover */
+}
+.create-button:active {
+  background-color: forestgreen; /* Darkens the button further when clicked */
+}
+.create-button:focus {
+  outline: none; /* Removes the focus outline */
+}
+
+
+
+.back-button {
+  background-color: blue; /* Sets the background color to blue */
+  color: white; /* Sets the text color to white for contrast */
+  border: none; /* Removes the default button border */
+  padding: 10px 20px; /* Adds padding around the text */
+  border-radius: 5px; /* Rounds the corners slightly */
+  cursor: pointer; /* Changes the cursor to a pointer on hover */
+  margin: 5px; /* Adds some space around the button */
+}
+.back-button:hover {
+  background-color: darkblue; /* Darkens the button on hover */
+}
+.back-button:active {
+  background-color: navy; /* Darkens the button further when clicked */
+}
+.back-button:focus {
+  outline: none; /* Removes the focus outline */
+}
