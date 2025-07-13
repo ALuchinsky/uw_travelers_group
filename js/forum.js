@@ -71,54 +71,48 @@ async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_to
 
 async function renderThemes() {
     console.log("Loading themes")
+    data = await loadDataFromSupabase("themes", {}, "theme_id");
 
-    data = await loadDataFromSupabase("themes", {}, order = "theme_id");
-    if (!data) {
-        console.log("No themes found, creating default theme");
-        return;
-    }
-
-
-  const themeBox = document.getElementById("forum_themes");
-  themeBox.textContent = ""
-  themeBox.innerHTML = "<div>Forum themes</div>"
+    const themeBox = document.getElementById("forum_themes");
+    themeBox.textContent = ""
+    themeBox.innerHTML = "<div>Forum themes</div>"
   
-  const create_theme_button = document.createElement("button")
+    const create_theme_button = document.createElement("button")
     create_theme_button.classList.add("create-button")
-  create_theme_button.textContent = "Create new theme"
-  create_theme_button.addEventListener("click", () => {createNewTheme()})
-  themeBox.appendChild(create_theme_button)
+    create_theme_button.textContent = "Create new theme"
+    create_theme_button.addEventListener("click", () => {createNewTheme()})
+    themeBox.appendChild(create_theme_button)
   
   
-  const themes_table = document.createElement("table")
-  themes_table.classList.add("bordered-table")
-  const header = document.createElement("tr")
-  header.innerHTML = `
-    <th> Topic </th>
-    <th "theme-list-num-rooms"> # RMS</th>
-    <th class="theme-list-num-messages"> # MSG</th>
-  `
-  themes_table.appendChild(header)
-
-  data.map( (item) => {
-    const row = document.createElement("tr")
-    row.innerHTML = `
-    <td>
-        <span class="theme-title">${item.topic}</span>
-        <br>&nbsp;&nbsp;&nbsp;
-        <span class="theme-descr">${item.description}</span>
-    </td>
-    <td class = "theme-list-num-rooms"> ${item.num_rooms}</td>
-    <td class="theme-list-num-messages"> ${ item.num_messages ? item.num_messages : 0}</td>
+    const themes_table = document.createElement("table")
+    themes_table.classList.add("bordered-table")
+    const header = document.createElement("tr")
+    header.innerHTML = `
+        <th> Topic </th>
+        <th "theme-list-num-rooms"> # RMS</th>
+        <th class="theme-list-num-messages"> # MSG</th>
     `
-    row.addEventListener("click", () => {
-        console.log("You have clicked item ", item.theme_id)
-        renderRooms(item.theme_id, item.topic)
-    });
-    themes_table.appendChild(row);
-  })
-  themeBox.appendChild(themes_table);
-  themeBox.scrollTop = themeBox.scrollHeight;
+    themes_table.appendChild(header)
+
+    data.map( (item) => {
+        const row = document.createElement("tr")
+        row.innerHTML = `
+        <td>
+            <span class="theme-title">${item.topic}</span>
+            <br>&nbsp;&nbsp;&nbsp;
+            <span class="theme-descr">${item.description}</span>
+        </td>
+        <td class = "theme-list-num-rooms"> ${item.num_rooms}</td>
+        <td class="theme-list-num-messages"> ${ item.num_messages ? item.num_messages : 0}</td>
+        `
+        row.addEventListener("click", () => {
+            console.log("You have clicked item ", item.theme_id)
+            renderRooms(item.theme_id, item.topic)
+        });
+        themes_table.appendChild(row);
+    })
+    themeBox.appendChild(themes_table);
+    themeBox.scrollTop = themeBox.scrollHeight;
 }
 /****** End of  renderThemes */
 
@@ -186,10 +180,17 @@ async function renderRooms(theme_id, theme_topic) {
         }
     })
     themeBox.appendChild(delete_theme_button)
-    const data = await loadDataFromSupabase("rooms", { theme_id: theme_id });
-    if(!data) {
-        return;
+
+    
+
+    const { data, error } = await client
+        .from("rooms")
+        .select("*")
+        .eq("theme_id", theme_id)
+    if(error) {
+        console.log("Rooms for theme ", theme_id, " loaded with error", error)
     }
+    console.log("rooms = ", data)
 
     const rooms_table = document.createElement("table")
     rooms_table.classList.add("bordered-table")
@@ -219,8 +220,14 @@ async function renderRooms(theme_id, theme_topic) {
  * Deletes theme and all rooms/messages inside it
  */
 async function deleteTheme(theme_id) {
-    const roomsData = await loadDataFromSupabase("rooms", { theme_id: theme_id });
-    if(!roomsData) {
+    // Delete all rooms for this theme
+    const { data: roomsData, error: roomsError } = await client
+        .from("rooms")
+        .select("room_id")
+        .eq("theme_id", theme_id);
+
+    if (roomsError) {
+        console.error("Error loading rooms for theme:", roomsError);
         return;
     }
 
@@ -291,37 +298,37 @@ async function deleteRoom(room_id, theme_id, theme_topic) {
     }
 
     // Update num_rooms and num_messages in themes table
-    // const { data: themeData, error: themeError } = await client
-    //     .from("themes")
-    //     .select("*")
-    //     .eq("theme_id", theme_id)
-    //     .single();
-    // const themeData = await loadDataFromSupabase("themes", { theme_id: theme_id });
-    // if (!themeData || themeData.length === 0) {
-    //     console.error("Theme not found or no data returned for theme_id:", theme_id);
-    //     return;
-    // }
-
-    // Update num_rooms and num_messages in themes table
-    const roomsData = await loadDataFromSupabase("rooms", { theme_id: theme_id });
-    const num_rooms = roomsData.length;
-
-    // Count remaining messages for this theme
-    // const { data: messagesData, error: messagesError } = await client
-    //     .from("forum_messages")
-    //     .select("message_id")
-    //     .in("room_id", roomsData.map(r => r.room_id));
-    const messagesData = await loadDataFromSupabase("forum_messages", { room_id: roomsData.map(r => r.room_id) });        
-    const num_messages = messagesData.length;
-
-    const { error: updateError } = await client
+    const { data: themeData, error: themeError } = await client
         .from("themes")
-        .update({ num_rooms, num_messages })
-        .eq("theme_id", theme_id);
-    if (updateError) {
-        console.error("Error updating theme counts:", updateError);
+        .select("*")
+        .eq("theme_id", theme_id)
+        .single();
+    if (themeError) {
+        console.error("Error loading theme info:", themeError);
     } else {
-        console.log("Theme counts updated for theme_id", theme_id);
+        // Count remaining rooms for this theme
+        const { data: roomsData, error: roomsError } = await client
+            .from("rooms")
+            .select("room_id")
+            .eq("theme_id", theme_id);
+        const num_rooms = roomsError ? 0 : roomsData.length;
+
+        // Count remaining messages for this theme
+        const { data: messagesData, error: messagesError } = await client
+            .from("forum_messages")
+            .select("message_id")
+            .in("room_id", roomsData.map(r => r.room_id));
+        const num_messages = messagesError ? 0 : messagesData.length;
+
+        const { error: updateError } = await client
+            .from("themes")
+            .update({ num_rooms, num_messages })
+            .eq("theme_id", theme_id);
+        if (updateError) {
+            console.error("Error updating theme counts:", updateError);
+        } else {
+            console.log("Theme counts updated for theme_id", theme_id);
+        }
     }
 
     // Refresh rooms list
