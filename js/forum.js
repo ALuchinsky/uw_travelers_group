@@ -1,4 +1,3 @@
-
 /************
  * Renders all themes on this forum
  */
@@ -11,6 +10,64 @@ function doubleConfirm(message1, message2) {
     return false;
 }
 
+/****
+ * Moves room from one theme to another
+ * Updates num_rooms and num_messages for both themes
+ * @param {number} room_id - ID of the room to move
+ * @param {number} old_theme_id - ID of the theme from which to move the room
+ * @param {number} new_theme_id - ID of the theme to which to move
+ * @param {string} new_theme_topic - Topic of the new theme (for display purposes
+ */
+async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_topic) {
+    // Update the room's theme_id
+    const { error: updateRoomError } = await client
+        .from("rooms")
+        .update({ theme_id: new_theme_id })
+        .eq("room_id", room_id);
+    if (updateRoomError) {
+        console.error("Error updating room's theme_id:", updateRoomError);
+        return;
+    }
+
+    // Update num_rooms and num_messages for old theme
+    const { data: oldRooms, error: oldRoomsError } = await client
+        .from("rooms")
+        .select("room_id")
+        .eq("theme_id", old_theme_id);
+    const num_rooms_old = oldRoomsError ? 0 : oldRooms.length;
+
+    const { data: oldMessages, error: oldMessagesError } = await client
+        .from("forum_messages")
+        .select("message_id")
+        .in("room_id", oldRooms.map(r => r.room_id));
+    const num_messages_old = oldMessagesError ? 0 : oldMessages.length;
+
+    await client
+        .from("themes")
+        .update({ num_rooms: num_rooms_old, num_messages: num_messages_old })
+        .eq("theme_id", old_theme_id);
+
+    // Update num_rooms and num_messages for new theme
+    const { data: newRooms, error: newRoomsError } = await client
+        .from("rooms")
+        .select("room_id")
+        .eq("theme_id", new_theme_id);
+    const num_rooms_new = newRoomsError ? 0 : newRooms.length;
+
+    const { data: newMessages, error: newMessagesError } = await client
+        .from("forum_messages")
+        .select("message_id")
+        .in("room_id", newRooms.map(r => r.room_id));
+    const num_messages_new = newMessagesError ? 0 : newMessages.length;
+
+    await client
+        .from("themes")
+        .update({ num_rooms: num_rooms_new, num_messages: num_messages_new })
+        .eq("theme_id", new_theme_id);
+
+    // Refresh rooms list for the new theme
+    renderRooms(new_theme_id, new_theme_topic);
+}
 
 async function renderThemes() {
     console.log("Loading themes")
@@ -133,6 +190,8 @@ async function renderRooms(theme_id, theme_topic) {
         }
     })
     themeBox.appendChild(delete_theme_button)
+
+    
 
     const { data, error } = await client
         .from("rooms")
