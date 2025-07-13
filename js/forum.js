@@ -71,17 +71,13 @@ async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_to
 
 async function renderThemes() {
     console.log("Loading themes")
-  const { data, error } = await client
-    .from("themes")
-    .select("*")
-    .order("theme_id")
 
-  if (error) {
-    console.error("Failed to load messages:", error);
-    return;
-  } else {
-    console.log("Themes loaded:", data)
-  }
+    data = await loadDataFromSupabase("themes", {});
+    if (!data) {
+        console.log("No themes found, creating default theme");
+        return;
+    }
+
 
   const themeBox = document.getElementById("forum_themes");
   themeBox.textContent = ""
@@ -190,17 +186,10 @@ async function renderRooms(theme_id, theme_topic) {
         }
     })
     themeBox.appendChild(delete_theme_button)
-
-    
-
-    const { data, error } = await client
-        .from("rooms")
-        .select("*")
-        .eq("theme_id", theme_id)
-    if(error) {
-        console.log("Rooms for theme ", theme_id, " loaded with error", error)
+    const data = await loadDataFromSupabase("rooms", { theme_id: theme_id });
+    if(!data) {
+        return;
     }
-    console.log("rooms = ", data)
 
     const rooms_table = document.createElement("table")
     rooms_table.classList.add("bordered-table")
@@ -231,13 +220,17 @@ async function renderRooms(theme_id, theme_topic) {
  */
 async function deleteTheme(theme_id) {
     // Delete all rooms for this theme
-    const { data: roomsData, error: roomsError } = await client
-        .from("rooms")
-        .select("room_id")
-        .eq("theme_id", theme_id);
+    // const { data: roomsData, error: roomsError } = await client
+    //     .from("rooms")
+    //     .select("room_id")
+    //     .eq("theme_id", theme_id);
 
-    if (roomsError) {
-        console.error("Error loading rooms for theme:", roomsError);
+    // if (roomsError) {
+    //     console.error("Error loading rooms for theme:", roomsError);
+    //     return;
+    // }
+    const data = await loadDataFromSupabase("rooms", { theme_id: theme_id });
+    if(!data) {
         return;
     }
 
