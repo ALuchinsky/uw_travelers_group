@@ -32,6 +32,6 @@ function openPage(evt, tabName) {
  */
 window.onload = function() {
   const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab") || "Forum";
+  const tab = params.get("tab") || "Presentations";
   openPage(null, tab);
 };
