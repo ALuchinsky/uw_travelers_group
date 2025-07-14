@@ -523,6 +523,9 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     themeBox.appendChild(document.createElement("hr"))
     themeBox.appendChild(document.createElement("hr"))
     const messageAreaBox = document.createElement("textarea")
+    messageAreaBox.style.width = "100%"
+    messageAreaBox.style.height = "100px"
+    messageAreaBox.placeholder = "Type your message here..."   
     messageAreaBox.addEventListener("keydown", function (event) {
     if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault(); // prevent new line
