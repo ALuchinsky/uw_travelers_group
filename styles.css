@@ -2,12 +2,21 @@
   body {
     font-family: 'Roboto', sans-serif;
     margin: auto;
-    width: 70%;
+    width: 100%;
     padding: 0 20px;
     background:white;
     color: #333;
     line-height: 2;
     font-size: larger;
+  }
+
+.footer {
+    text-align: left;
+    padding: 20px;
+    background-color: white;
+    color: #333;
+    font-size: smaller;
+    font-style: italic;
   }
 
   table {
