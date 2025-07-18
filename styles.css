@@ -10,6 +10,15 @@
     font-size: larger;
   }
 
+.footer {
+    text-align: left;
+    padding: 20px;
+    background-color: white;
+    color: #333;
+    font-size: smaller;
+    font-style: italic;
+  }
+
   table {
     width: 100%;
   }
