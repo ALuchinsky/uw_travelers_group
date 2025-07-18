@@ -11,8 +11,9 @@ async function sendMessage() {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
-      })
-    }
+      }),
+      created_at: new Date().toISOString()
+    };
   console.log("inserting ", to_insert)
 
   await client.from("messages").insert([to_insert]);
@@ -26,7 +27,7 @@ async function loadChatMessages() {
   const { data, error } = await client
     .from("messages")
     .select("*")
-    .order("time", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Failed to load messages:", error);
@@ -35,8 +36,26 @@ async function loadChatMessages() {
 
   const chatBox = document.getElementById("chat-box");
   const html = data.map(msg => {
-    // console.log(msg)
-    return(`<div><strong>${msg.author}</strong>:<small>${msg.time}</small><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
+        const isoString = msg.created_at;
+        const date = new Date(isoString);
+        const dateOptions = {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            timeZone: "America/New_York"
+        };
+
+        // Options for the time part
+        const timeOptions = {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "America/New_York"
+        };
+        const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
+        const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
+
+    return(`<div><strong>${msg.author}</strong> : <small>${localDate}, ${localTime} </small><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
   }
   ).join("");
   chatBox.innerHTML = html
