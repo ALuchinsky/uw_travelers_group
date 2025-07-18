@@ -7,11 +7,6 @@ async function sendMessage() {
   to_insert =     {
       author: author,
       content: content,
-      time: new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      }),
       created_at: new Date().toISOString()
     };
   console.log("inserting ", to_insert)
@@ -55,7 +50,7 @@ async function loadChatMessages() {
         const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
         const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
 
-    return(`<div><strong>${msg.author}</strong> : <small>${localDate}, ${localTime} </small><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
+    return(`<div><small>${localDate}, ${localTime}</small>: <strong>${msg.author}</strong><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
   }
   ).join("");
   chatBox.innerHTML = html
