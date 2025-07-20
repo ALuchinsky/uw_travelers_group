@@ -130,7 +130,10 @@ async function renderRooms(theme_id, theme_topic) {
         `
         if(window.admin) {
             row.innerHTML += `<td class="rooms-list-delete">
-                <button class="delete-button" title="Delete room">🗑️</button>`
+                <button class="delete-button" title="Delete room">🗑️</button>
+                <button class="move-button" title="Move room">➡️</button>
+            </td>
+            `
             row.querySelector(".delete-button").addEventListener("click", async (event) => {
                 event.stopPropagation(); // Prevent row click event
                 if( doubleConfirm(
@@ -138,6 +141,35 @@ async function renderRooms(theme_id, theme_topic) {
                     await deleteRoom(item.room_id, theme_id, theme_topic)
                     }
                 })
+            row.querySelector(".move-button").addEventListener("click", async (event) => {
+                event.stopPropagation(); // Prevent row click event
+                console.log("Move room button clicked")
+                const {data: themesData, error:themesError} = await client.rpc("get_themes");
+                    if (themesError) {
+                        console.error("Error loading themes:", themesEror);
+                        return;
+                    }
+                    console.log("Themes loaded:", themesData);
+                const new_theme_index = prompt("Enter theme number to move room to (1 - " + themesData.length + "):") - 1;
+                if (new_theme_index < 0 || new_theme_index >= themesData.length) {
+                    console.error("Invalid theme index:", new_theme_index);
+                    return;
+                }
+                console.log("Moving room ", item.room_id, " to theme ", themesData[new_theme_index].theme_id, " with topic ", themesData[new_theme_index].topic);
+                if (doubleConfirm(
+                    `Are you sure you want to move room "${item.topic}" to theme "${themesData[new_theme_index].topic}"?`,
+                    "Please, rethink, this action cannot be undone.")) {
+                    console.log("Moving room ", item.room_id, " to theme ", themesData[new_theme_index].theme_id, " with topic ", themesData[new_theme_index].topic);
+                    moveRoomToTheme(item.room_id, theme_id, themesData[new_theme_index].theme_id, themesData[new_theme_index].topic);
+                }
+                else {
+                    console.log("Room move cancelled");
+                    return;
+                }
+                // Move the room to the new theme
+                // moveRoomToTheme(item.room_id, theme_id, themes.data[new_theme_index].theme_id, themes.data[new_theme_index].topic);
+                // renderThemes();
+            })
         }
         row.querySelector(".rooms-list-topic").addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
