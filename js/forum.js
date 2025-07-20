@@ -71,7 +71,12 @@ async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_to
 
 async function renderThemes() {
     console.log("Loading themes")
-    data = await loadDataFromSupabase("themes", {}, "theme_id");
+    const {data: themesData, error:themesEror} = await client.rpc("get_themes");
+    if (themesEror) {
+        console.error("Error loading themes:", themesEror);
+        return;
+    }
+    console.log("themesData = ", themesData)
 
     const themeBox = document.getElementById("forum_themes");
     themeBox.textContent = ""
@@ -94,7 +99,7 @@ async function renderThemes() {
     `
     themes_table.appendChild(header)
 
-    data.map( (item) => {
+    themesData.map( (item) => {
         const row = document.createElement("tr")
         row.innerHTML = `
         <td>
