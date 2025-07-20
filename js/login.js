@@ -87,6 +87,8 @@ async function loginUser() {
     let message = `Welcome to the Travel Club, ${name}!`;
     if( name === "Guest") {
         message = "Welcome to the Travel Club! Your name and/or password was not recognized. Please log in again or contact the site administrator.";
+        renderThemes(); // refresh themes to show guest view
+        return;
     }
 
     alert(message); // welcome message
