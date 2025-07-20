@@ -267,21 +267,10 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
             row.innerHTML += `<td class="messages-list-delete"><button class="delete-button">Delete</button></td>`;
             row.querySelector(".delete-button").addEventListener("click", async (event) => {
                 event.stopPropagation(); // Prevent row click event
-                if (doubleConfirm(
-                    "Are you sure you want to delete this message?",
-                    "Please, rethink, this action cannot be undone.")) {
-                    const { error: deleteError } = await client
-                        .from("forum_messages")
-                        .delete()
-                        .eq("message_id", item.message_id);
-                    if (deleteError) {
-                        console.error("Error deleting message:", deleteError);
-                    } else {
-                        console.log("Message deleted:", item.message_id);
-                        // Refresh messages list
-                        renderMessages(room_id, room_topic, theme_id, theme_topic);
-                    }
-                }
+                await deleteMessage(item.message_id).
+                then(() => {
+                    renderMessages(room_id, room_topic, theme_id, theme_topic);
+                })
             });
         }
         row.addEventListener("click", () => {

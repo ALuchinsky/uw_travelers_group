@@ -230,3 +230,27 @@ async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text
   
 }
 /********* End of sendForumMessage */
+
+/**
+ * Deletes a message from the forum
+ */
+async function deleteMessage(message_id) 
+{
+        if (doubleConfirm(
+        "Are you sure you want to delete this message?",
+        "Please, rethink, this action cannot be undone.")) {
+        const { error: deleteError } = await client
+            .from("forum_messages")
+            .delete()
+            .eq("message_id", message_id);
+        if (deleteError) {
+            console.error("Error deleting message:", deleteError);
+            return false; // Indicate failure
+        } else {
+            console.log("Message deleted:", message_id);
+            return true; // Indicate successful deletion
+            // Refresh messages list
+        }
+    }
+}
+/********* End of deleteMessage */
