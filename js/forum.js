@@ -225,6 +225,9 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         <th style="width: 100px; font-size: small;"> Author</th>
         <th class="messages-list-text">Message</th>
     `
+    if(window.admin) {
+        header.innerHTML += `<th style="width: 20px; font-size: small;">Delete</th>`
+    }
     messages_table.appendChild(header)
     // Loop through all messages and add them to table
     data.map( (item) => {
@@ -260,6 +263,27 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
             </td>
             <td class="messages-list-text">${item.text}</td>
         `;
+        if(window.admin) {
+            row.innerHTML += `<td class="messages-list-delete"><button class="delete-button">Delete</button></td>`;
+            row.querySelector(".delete-button").addEventListener("click", async (event) => {
+                event.stopPropagation(); // Prevent row click event
+                if (doubleConfirm(
+                    "Are you sure you want to delete this message?",
+                    "Please, rethink, this action cannot be undone.")) {
+                    const { error: deleteError } = await client
+                        .from("forum_messages")
+                        .delete()
+                        .eq("message_id", item.message_id);
+                    if (deleteError) {
+                        console.error("Error deleting message:", deleteError);
+                    } else {
+                        console.log("Message deleted:", item.message_id);
+                        // Refresh messages list
+                        renderMessages(room_id, room_topic, theme_id, theme_topic);
+                    }
+                }
+            });
+        }
         row.addEventListener("click", () => {
             console.log("You have clicked message  ", item.message_id)
         });
