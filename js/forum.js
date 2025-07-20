@@ -201,44 +201,8 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         renderRooms(theme_id, theme_topic)
     })
     themeBox.appendChild(back_button)
-    themeBox.appendChild(document.createElement("br"))
+    themeBox.appendChild(document.createElement("br"));
 
-    if(window.admin) {
-
-        const move_room_button = document.createElement("button")
-        move_room_button.classList.add("move-button")
-        move_room_button.textContent = "Move room to another theme"
-        move_room_button.addEventListener("click", async () => {
-            console.log("Move room button clicked")
-            const themes = await client
-                .from("themes")
-                .select("*")
-                .order("theme_id");
-            if (themes.error) {
-                console.error("Error loading themes:", themes.error);
-                return;
-            }
-            console.log("Themes loaded:", themes.data);
-            const new_theme_index = prompt("Enter theme number to move room to (1 - " + themes.data.length + "):") - 1;
-            if (new_theme_index < 0 || new_theme_index >= themes.data.length) {
-                console.error("Invalid theme index:", new_theme_index);
-                return;
-            }
-            console.log("Moving room ", room_id, " to theme ", themes.data[new_theme_index].theme_id, " with topic ", themes.data[new_theme_index].topic);
-            if (doubleConfirm(
-                `Are you sure you want to move room "${room_topic}" to theme "${themes.data[new_theme_index].topic}"?`,
-                "Please, rethink, this action cannot be undone.")) {
-                console.log("Moving room ", room_id, " to theme ", themes.data[new_theme_index].theme_id, " with topic ", themes.data[new_theme_index].topic);
-            } else {
-                console.log("Room move cancelled");
-                return;
-            }
-            // Move the room to the new theme
-            moveRoomToTheme(room_id, theme_id, themes.data[new_theme_index].theme_id, themes.data[new_theme_index].topic);
-            renderThemes();
-        })
-        themeBox.appendChild(move_room_button)
-    }
 
     const { data, error } = await client
         .from("forum_messages")
