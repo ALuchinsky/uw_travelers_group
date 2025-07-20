@@ -122,35 +122,6 @@ async function renderThemes() {
 /****** End of  renderThemes */
 
 
-async function createNewTheme() {
-
-    console.log("Create new theme button clicked")
-    const theme_title = prompt("Enter theme title")
-    const theme_descr = prompt("Enter theme description")
-    if(theme_title && theme_descr) {
-      console.log("Creating new theme with title: ", theme_title, " and description: ", theme_descr)
-      const to_insert = {
-        topic: theme_title,
-        description: theme_descr,
-        creater_ID: window.currentUser,
-        num_rooms: 0,
-        num_messages: 0
-      };
-      client
-        .from('themes')
-        .insert([to_insert])
-        .then(({ data, error }) => {
-          if (error) {
-            console.error("Error creating theme:", error);
-          } else {
-            console.log("Theme created successfully:", data);
-            renderThemes(); // Refresh the themes list
-          }
-        });
-    } else {
-      console.log("Theme title or description is empty, not creating theme")
-    }
-}
 /****************
  * Render rooms list of the particular theme
  */
