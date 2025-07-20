@@ -184,3 +184,26 @@ async function deleteTheme(theme_id) {
     renderThemes();
 }
 /********* End of deleteTheme */
+
+/****
+ * Moves room from one theme to another
+ * Updates num_rooms and num_messages for both themes
+ * @param {number} room_id - ID of the room to move
+ * @param {number} old_theme_id - ID of the theme from which to move the room
+ * @param {number} new_theme_id - ID of the theme to which to move
+ * @param {string} new_theme_topic - Topic of the new theme (for display purposes
+ */
+async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_topic) {
+    // Update the room's theme_id
+    const { error: updateRoomError } = await client
+        .from("rooms")
+        .update({ theme_id: new_theme_id })
+        .eq("room_id", room_id);
+    if (updateRoomError) {
+        console.error("Error updating room's theme_id:", updateRoomError);
+        return;
+    }
+
+    renderRooms(new_theme_id, new_theme_topic);
+}
+/********* End of moveRoomToTheme */
