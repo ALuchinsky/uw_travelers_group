@@ -367,27 +367,6 @@ async function createNewRoom(theme_id, theme_topic){
                     }
                 });
 
-                // update num_rooms for "themes" table
-                const { data: countData, error: countError } = await client
-                    .from("themes")
-                    .select("*")
-                    .eq("theme_id", theme_id)
-                    .single();
-                if (countError) {       
-                    console.log("Error loading themes info line:", countError)
-                } else {
-                    const currentCount = countData.num_rooms;
-                    console.log("currentCount = ", currentCount)
-                    const {error: updateError} = await client
-                        .from("themes")
-                        .update({num_rooms: currentCount + 1})
-                        .eq("theme_id", theme_id);
-                    if(updateError) {
-                        console.log("Update error: ", updateError)
-                    } else {
-                        console.log("num_rooms incremented from theme_id", theme_id)
-                    }
-                }
         } else {
             console.log("Room topic is empty, not creating room")
         }
