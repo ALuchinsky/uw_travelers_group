@@ -62,3 +62,34 @@ async function createNewRoom(theme_id, theme_topic){
         }
     }
 /***   End of createNewRoom */
+
+/*********
+ * Deletes room and all messages from it, updates themes table
+ */
+async function deleteRoom(room_id, theme_id, theme_topic) {
+    // Delete all messages from this room
+    const { error: msgError } = await client
+        .from("forum_messages")
+        .delete()
+        .eq("room_id", room_id);
+    if (msgError) {
+        console.error("Error deleting messages:", msgError);
+    } else {
+        console.log("All messages deleted for room", room_id);
+    }
+
+    // Delete the room itself
+    const { error: roomError } = await client
+        .from("rooms")
+        .delete()
+        .eq("room_id", room_id);
+    if (roomError) {
+        console.error("Error deleting room:", roomError);
+        return;
+    } else {
+        console.log("Room deleted:", room_id);
+    }
+    // Refresh rooms list
+    renderRooms(theme_id, theme_topic);
+}
+/**************** End of deleteRoom */
