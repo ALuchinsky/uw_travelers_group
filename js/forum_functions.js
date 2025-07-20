@@ -207,3 +207,26 @@ async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_to
     renderRooms(new_theme_id, new_theme_topic);
 }
 /********* End of moveRoomToTheme */
+
+/**
+ * Sends a message to a specific forum room
+ */
+async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text) {
+    console.log(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
+  const to_insert = {
+    room_id: room_id,
+    author_id: window.currentUser,
+    created_at: new Date().toISOString(),
+    text: text
+  };
+
+    const { data: insertData, error: insertError } = await client
+        .from('forum_messages')
+        .insert([to_insert])
+        .order("created_at", { ascending: true });
+
+
+    renderMessages(room_id, room_topic, theme_id, theme_topic) 
+  
+}
+/********* End of sendForumMessage */

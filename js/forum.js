@@ -10,64 +10,6 @@ function doubleConfirm(message1, message2) {
     return false;
 }
 
-/****
- * Moves room from one theme to another
- * Updates num_rooms and num_messages for both themes
- * @param {number} room_id - ID of the room to move
- * @param {number} old_theme_id - ID of the theme from which to move the room
- * @param {number} new_theme_id - ID of the theme to which to move
- * @param {string} new_theme_topic - Topic of the new theme (for display purposes
- */
-async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_topic) {
-    // Update the room's theme_id
-    const { error: updateRoomError } = await client
-        .from("rooms")
-        .update({ theme_id: new_theme_id })
-        .eq("room_id", room_id);
-    if (updateRoomError) {
-        console.error("Error updating room's theme_id:", updateRoomError);
-        return;
-    }
-
-    // Update num_rooms and num_messages for old theme
-    const { data: oldRooms, error: oldRoomsError } = await client
-        .from("rooms")
-        .select("room_id")
-        .eq("theme_id", old_theme_id);
-    const num_rooms_old = oldRoomsError ? 0 : oldRooms.length;
-
-    const { data: oldMessages, error: oldMessagesError } = await client
-        .from("forum_messages")
-        .select("message_id")
-        .in("room_id", oldRooms.map(r => r.room_id));
-    const num_messages_old = oldMessagesError ? 0 : oldMessages.length;
-
-    await client
-        .from("themes")
-        .update({ num_rooms: num_rooms_old, num_messages: num_messages_old })
-        .eq("theme_id", old_theme_id);
-
-    // Update num_rooms and num_messages for new theme
-    const { data: newRooms, error: newRoomsError } = await client
-        .from("rooms")
-        .select("room_id")
-        .eq("theme_id", new_theme_id);
-    const num_rooms_new = newRoomsError ? 0 : newRooms.length;
-
-    const { data: newMessages, error: newMessagesError } = await client
-        .from("forum_messages")
-        .select("message_id")
-        .in("room_id", newRooms.map(r => r.room_id));
-    const num_messages_new = newMessagesError ? 0 : newMessages.length;
-
-    await client
-        .from("themes")
-        .update({ num_rooms: num_rooms_new, num_messages: num_messages_new })
-        .eq("theme_id", new_theme_id);
-
-    // Refresh rooms list for the new theme
-    renderRooms(new_theme_id, new_theme_topic);
-}
 
 async function renderThemes() {
     console.log("Loading themes")
@@ -343,69 +285,6 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
 }
 /****************** End of  renderMessages*/
 
-async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text) {
-    console.log(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
-  const to_insert = {
-    room_id: room_id,
-    author_id: window.currentUser,
-    created_at: new Date().toISOString(),
-    text: text
-  };
-
-    const { data: insertData, error: insertError } = await client
-        .from('forum_messages')
-        .insert([to_insert])
-        .order("created_at", { ascending: true });
-
-
-    // update num_messages for "rooms" table
-    const { data: countData, error: countError } = await client
-        .from("rooms")
-        .select("*")
-        .eq("room_id", room_id)
-        .single();
-    if (countError) {
-        console.log("Error loading room info line:", countError)
-    } else {
-        const currentCount = countData.num_messages;
-        console.log("currentCount = ", currentCount)
-        const {error: updateError} = await client
-            .from("rooms")
-            .update({num_messages: currentCount + 1})
-            .eq("room_id", room_id);
-        if(updateError) {
-            console.log("Update error: ", updateError)
-        } else {
-            console.log("num_messages incremented from room_id", room_id)
-        }
-    }
-
-    // update num_messages for "themes" table
-    const { data: countData_themes, error: countError_themes } = await client
-        .from("themes")
-        .select("*")
-        .eq("theme_id", theme_id)
-        .single();
-    if (countError_themes) {
-        console.log("Error loading themes info line:", countError_themes)
-    } else {
-        const currentCount = countData_themes.num_messages;
-        console.log("currentCount = ", currentCount)
-        const {error: updateError} = await client
-            .from("themes")
-            .update({num_messages: currentCount + 1})
-            .eq("theme_id", theme_id);
-        if(updateError) {
-            console.log("Update error: ", updateError)
-        } else {
-            console.log("num_messages incremented from theme_id", theme_id)
-        }
-    }
-
-    console.log("countData = ", countData)
-    renderMessages(room_id, room_topic, theme_id, theme_topic) 
-  
-}
 
 
 
