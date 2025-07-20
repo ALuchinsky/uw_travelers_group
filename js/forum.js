@@ -183,16 +183,15 @@ async function renderRooms(theme_id, theme_topic) {
         themeBox.appendChild(delete_theme_button)
     }
 
-    
-
-    const { data, error } = await client
-        .from("rooms")
-        .select("*")
-        .eq("theme_id", theme_id)
-    if(error) {
-        console.log("Rooms for theme ", theme_id, " loaded with error", error)
+    // access rooms for this theme using RPC
+    console.log("rpc: Loading rooms for theme ", theme_id)
+    const { data: roomsData, error: roomsError } = await client.rpc("get_rooms_for_theme", { t_id: theme_id });
+    console.log("roomsData = ", roomsData)
+    if (roomsError) {
+        console.error("Error loading rooms for theme:", roomsError);
+        return;
     }
-    console.log("rooms = ", data)
+
 
     const rooms_table = document.createElement("table")
     rooms_table.classList.add("bordered-table")
@@ -202,7 +201,7 @@ async function renderRooms(theme_id, theme_topic) {
         <th class="rooms-list-num-rooms"> # MSG</th>
     `
     rooms_table.appendChild(header)
-    data.map( (item) => {
+    roomsData.map( (item) => {
         const row = document.createElement("tr")
         row.innerHTML = `
         <td class="rooms-list-topic">${item.topic}</td>
