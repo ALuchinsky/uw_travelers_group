@@ -264,7 +264,7 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
             <td class="messages-list-text">${item.text}</td>
         `;
         if(window.admin) {
-            row.innerHTML += `<td class="messages-list-delete"><button class="delete-button">Delete</button></td>`;
+            row.innerHTML += `<td class="messages-list-delete"><button class="delete-button" title="Delete"><span style="font-size:larger;">🗑️</span></button></td>`;
             row.querySelector(".delete-button").addEventListener("click", async (event) => {
                 event.stopPropagation(); // Prevent row click event
                 await deleteMessage(item.message_id).
