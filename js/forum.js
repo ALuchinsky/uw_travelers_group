@@ -56,21 +56,26 @@ async function renderThemes() {
         </td>
         <td class = "theme-list-num-rooms"> ${item.num_rooms}</td>
         <td class="theme-list-num-messages"> ${ item.num_messages ? item.num_messages : 0}</td>
+        `
+        if(window.admin) {
+            row.innerHTML += `
         <td class="theme-list-delete">
             <button class="delete-button" title="Delete theme">🗑️</button>
         `
-        row.querySelector(".theme-list-topic").addEventListener("click", () => {
+            row.querySelector(".delete-button").addEventListener("click", async (event) => {
+                event.stopPropagation(); // Prevent row click event
+                if (doubleConfirm(
+                    `Are you sure you want to delete theme "${item.topic}"? All rooms and messages will be deleted.`,
+                    "Please, rethink, this action cannot be undone.")) {
+                    deleteTheme(item.theme_id);
+                }
+            })
+        }
+            row.querySelector(".theme-list-topic").addEventListener("click", () => {
             console.log("You have clicked item ", item.theme_id)
             renderRooms(item.theme_id, item.topic)
         });
-        row.querySelector(".delete-button").addEventListener("click", async (event) => {
-            event.stopPropagation(); // Prevent row click event
-            if (doubleConfirm(
-                `Are you sure you want to delete theme "${item.topic}"? All rooms and messages will be deleted.`,
-                "Please, rethink, this action cannot be undone.")) {
-                deleteTheme(item.theme_id);
-            }
-        })
+
         themes_table.appendChild(row);
     })
     themeBox.appendChild(themes_table);
