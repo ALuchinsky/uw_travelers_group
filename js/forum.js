@@ -101,20 +101,6 @@ async function renderRooms(theme_id, theme_topic) {
     create_room_button.addEventListener("click", async () => {createNewRoom(theme_id, theme_topic)})
     themeBox.appendChild(create_room_button)
 
-    if(window.admin) {
-        const delete_theme_button = document.createElement("button")
-        delete_theme_button.classList.add("delete-button")
-        delete_theme_button.textContent = "Delete theme"
-        delete_theme_button.addEventListener("click", () => {
-            if (doubleConfirm(
-                "Are you sure you want to delete this theme? All rooms and messages will be deleted.",
-                "Please, rethink, this action cannot be undone.")) {
-                deleteTheme(theme_id)
-                renderThemes()
-            }
-        })
-        themeBox.appendChild(delete_theme_button)
-    }
 
     // access rooms for this theme using RPC
     console.log("rpc: Loading rooms for theme ", theme_id)
