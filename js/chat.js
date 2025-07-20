@@ -26,34 +26,38 @@ async function loadChatMessages() {
 
   if (error) {
     console.error("Failed to load messages:", error);
-    return;
   }
 
   const chatBox = document.getElementById("chat-box");
-  const html = data.map(msg => {
-        const isoString = msg.created_at;
-        const date = new Date(isoString);
-        const dateOptions = {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            timeZone: "America/New_York"
-        };
+  if (window.currentUser == "Guest") {
+    chatBox.innerHTML = "<p>Please log in to see the chat messages.</p>";
+    return;
+  } else {
+    const html = data.map(msg => {
+          const isoString = msg.created_at;
+          const date = new Date(isoString);
+          const dateOptions = {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              timeZone: "America/New_York"
+          };
 
-        // Options for the time part
-        const timeOptions = {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-            timeZone: "America/New_York"
-        };
-        const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
-        const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
+          // Options for the time part
+          const timeOptions = {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+              timeZone: "America/New_York"
+          };
+          const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
+          const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
 
-    return(`<div><small>${localDate}, ${localTime}</small>: <strong>${msg.author}</strong><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
-  }
-  ).join("");
-  chatBox.innerHTML = html
+      return(`<div><small>${localDate}, ${localTime}</small>: <strong>${msg.author}</strong><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
+    }
+    ).join("");
+    chatBox.innerHTML = html
+  };
 
 
   // auto-scroll to bottom
