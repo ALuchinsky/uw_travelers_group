@@ -134,7 +134,7 @@ async function renderRooms(theme_id, theme_topic) {
         <th class="rooms-list-num-rooms"> # MSG</th>
     `
     if(window.admin) {
-        header.innerHTML += `<th class="rooms-list-delete">Actions</th>`
+        header.innerHTML += `<th class="rooms-list-delete" style="width:100px;">Actions</th>`
     }
     rooms_table.appendChild(header)
     roomsData.map( (item) => {
@@ -145,8 +145,8 @@ async function renderRooms(theme_id, theme_topic) {
         `
         if(window.admin) {
             row.innerHTML += `<td class="rooms-list-delete">
-                <button class="delete-button" title="Delete room">🗑️</button>
-                <button class="move-button" title="Move room">➡️</button>
+                <button class="delete-button" style="width:15px;" title="Delete room">🗑️</button>
+                <button class="move-button" title="Move room"  style="width:15px;">➡️</button>
             </td>
             `
             row.querySelector(".delete-button").addEventListener("click", async (event) => {
