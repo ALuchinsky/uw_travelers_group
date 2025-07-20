@@ -118,6 +118,9 @@ async function renderRooms(theme_id, theme_topic) {
         <th class="rooms-list-topic"> Topic </th>
         <th class="rooms-list-num-rooms"> # MSG</th>
     `
+    if(window.admin) {
+        header.innerHTML += `<th class="rooms-list-delete">Actions</th>`
+    }
     rooms_table.appendChild(header)
     roomsData.map( (item) => {
         const row = document.createElement("tr")
@@ -125,7 +128,18 @@ async function renderRooms(theme_id, theme_topic) {
         <td class="rooms-list-topic">${item.topic}</td>
         <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
         `
-        row.addEventListener("click", () => {
+        if(window.admin) {
+            row.innerHTML += `<td class="rooms-list-delete">
+                <button class="delete-button" title="Delete room">🗑️</button>`
+            row.querySelector(".delete-button").addEventListener("click", async (event) => {
+                event.stopPropagation(); // Prevent row click event
+                if( doubleConfirm(
+                    `Are you sure you want to delete room "${item.topic}"? All messages will be deleted.`, "Please, rethink, this action cannot be undone.")) {
+                    await deleteRoom(item.room_id, theme_id, theme_topic)
+                    }
+                })
+        }
+        row.querySelector(".rooms-list-topic").addEventListener("click", () => {
             console.log("You have clicked room  ", item.room_id)
             renderMessages(item.room_id, item.topic, theme_id, theme_topic)
         });
@@ -158,18 +172,6 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     themeBox.appendChild(document.createElement("br"))
 
     if(window.admin) {
-        const delete_room_button = document.createElement("button")
-        delete_room_button.classList.add("delete-button")
-        delete_room_button.textContent = "Delete room"
-        delete_room_button.addEventListener("click", () => {
-            if (doubleConfirm(
-                "Are you sure you want to delete this room? All messages will be deleted.",
-                "Please, rethink, this action cannot be undone.")) {
-                deleteRoom(room_id, theme_id, theme_topic)
-                renderRooms(theme_id, theme_topic)
-            }
-        })
-        themeBox.appendChild(delete_room_button)
 
         const move_room_button = document.createElement("button")
         move_room_button.classList.add("move-button")
