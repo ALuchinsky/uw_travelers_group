@@ -39,23 +39,38 @@ async function renderThemes() {
         <th "theme-list-num-rooms"> # RMS</th>
         <th class="theme-list-num-messages"> # MSG</th>
     `
+    if(window.admin) {
+        header.innerHTML += `<th class="theme-list-delete" style="width:10px">Delete</th>`
+    }
     themes_table.appendChild(header)
 
     themesData.map( (item) => {
         const row = document.createElement("tr")
         row.innerHTML = `
         <td>
+            <div class="theme-list-topic">
             <span class="theme-title">${item.topic}</span>
             <br>&nbsp;&nbsp;&nbsp;
             <span class="theme-descr">${item.description}</span>
+            </div>
         </td>
         <td class = "theme-list-num-rooms"> ${item.num_rooms}</td>
         <td class="theme-list-num-messages"> ${ item.num_messages ? item.num_messages : 0}</td>
+        <td class="theme-list-delete">
+            <button class="delete-button" title="Delete theme">🗑️</button>
         `
-        row.addEventListener("click", () => {
+        row.querySelector(".theme-list-topic").addEventListener("click", () => {
             console.log("You have clicked item ", item.theme_id)
             renderRooms(item.theme_id, item.topic)
         });
+        row.querySelector(".delete-button").addEventListener("click", async (event) => {
+            event.stopPropagation(); // Prevent row click event
+            if (doubleConfirm(
+                `Are you sure you want to delete theme "${item.topic}"? All rooms and messages will be deleted.`,
+                "Please, rethink, this action cannot be undone.")) {
+                deleteTheme(item.theme_id);
+            }
+        })
         themes_table.appendChild(row);
     })
     themeBox.appendChild(themes_table);
