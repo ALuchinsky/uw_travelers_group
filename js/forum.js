@@ -12,6 +12,8 @@ function doubleConfirm(message1, message2) {
 
 
 async function renderThemes() {
+    // debugger;
+    console.log("renderThemes: ", window.currentUser);
     console.log("Loading themes")
     const {data: themesData, error:themesEror} = await client.rpc("get_themes");
     if (themesEror) {
@@ -43,6 +45,13 @@ async function renderThemes() {
         header.innerHTML += `<th class="theme-list-delete" style="width:10px">Delete</th>`
     }
     themes_table.appendChild(header)
+
+    if(window.currentUser === "Guest") { 
+        console.log("Guest user, not rendering themes");
+        document.getElementById("forum_themes").innerHTML = "<p>Please log in to see the forum themes.</p>";
+        return;
+    }
+
 
     themesData.map( (item) => {
         const row = document.createElement("tr")

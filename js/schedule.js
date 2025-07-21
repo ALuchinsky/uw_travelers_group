@@ -54,6 +54,10 @@ document.addEventListener('DOMContentLoaded', loadSchedule);
  * When cell is double-clicked opens a dialog box with new value prompt and updates the page
  */
 function handleCellDoubleClick(column, rowIndex) {
+  if(window.currentUser === "Guest" || !window.currentUser) {
+    alert("You must be logged in to edit the schedule.");
+    return;
+  }
   const value = window.schedule_data[rowIndex][column];
   // alert(`Double-clicked on: ${column} = "${value}" (row ${rowIndex + 1})`);
   const currentValue = window.schedule_data[rowIndex][column]

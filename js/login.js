@@ -45,6 +45,8 @@ async function loginUser() {
     .select("*")
     .eq("login_name", name);
 
+    console.log("usersData", usersData, "usersError", usersError);
+
     if( usersError) {
         console.error("Failed to load user data:", usersError);
         alert("Failed to load user data. Please try again.");
@@ -52,18 +54,26 @@ async function loginUser() {
     }
 
     if(usersData.length > 0) {
-        const password = prompt("Enter your password:");
-        console.log("password", password, "usersData[0].password", usersData[0].password);
-        if (!password) {
-            alert("Password is required.");
-            name = "unknown"; // reset name if no password provided
-        } else if (usersData[0].password !== password) {
-            alert("Incorrect password.");
-            name = "unknown"; // reset name if password is incorrect
+        console.log("User found:", usersData[0]);
+        if (!usersData[0].password) {
+          name = usersData[0].display_name || name; // use display name if available
+          window.admin = false; // no password means not an admin
         } else {
-            name = usersData[0].display_name; // use display name if available
-            window.admin = usersData[0].admin; // set admin status
+          const password = prompt("Enter your password:");
+          console.log("password", password, "usersData[0].password", usersData[0].password);
+          if (!password) {
+              alert("Password is required.");
+              name = "Guest"; // reset name if no password provided
+          } else if (usersData[0].password !== password) {
+              alert("Incorrect password.");
+              name = "Guest"; // reset name if password is incorrect
+          } else {
+              name = usersData[0].display_name; // use display name if available
+              window.admin = usersData[0].admin; // set admin status
+          }
         }
+    } else {
+        name = "Guest"; // reset name if user not found
     }
   
     console.log("usersData", usersData, "usersError", usersError);
@@ -73,6 +83,16 @@ async function loginUser() {
     localStorage.setItem("currentUser", name);
     localStorage.setItem("admin", window.admin);
     document.getElementById("login-status").textContent = `Logged in as ${window.currentUser}`;
+
+    let message = `Welcome to the Travel Club, ${name.split(" ")[0]}!`;
+    if( name === "Guest") {
+        message = "Welcome to the Travel Club! Your name and/or password was not recognized. Please log in again or contact the site administrator.";
+        alert(message);
+        renderThemes(); // refresh themes to show guest view
+        return;
+    }
+
+    alert(message); // welcome message
 
     window.location.reload(); // reload to apply changes
 }
