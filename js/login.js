@@ -1,7 +1,7 @@
 /************
  * global window variable where current user name is stored
  */
-window.currentUser = null;
+window.currentUser = "Guest";
 
 
 
