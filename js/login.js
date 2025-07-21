@@ -84,9 +84,10 @@ async function loginUser() {
     localStorage.setItem("admin", window.admin);
     document.getElementById("login-status").textContent = `Logged in as ${window.currentUser}`;
 
-    let message = `Welcome to the Travel Club, ${name}!`;
+    let message = `Welcome to the Travel Club, ${name.split(" ")[0]}!`;
     if( name === "Guest") {
         message = "Welcome to the Travel Club! Your name and/or password was not recognized. Please log in again or contact the site administrator.";
+        alert(message);
         renderThemes(); // refresh themes to show guest view
         return;
     }
