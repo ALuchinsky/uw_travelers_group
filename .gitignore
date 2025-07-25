@@ -2,4 +2,5 @@
 old/
 .DS_Store 
 .vscode/
+data/members.xlsx
 

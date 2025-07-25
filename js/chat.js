@@ -33,7 +33,7 @@ async function loadChatMessages() {
     chatBox.innerHTML = "<p>Please log in to see the chat messages.</p>";
     return;
   } else {
-    const html = data.map(msg => {
+    data.map(msg => {
           const isoString = msg.created_at;
           const date = new Date(isoString);
           const dateOptions = {
@@ -52,11 +52,16 @@ async function loadChatMessages() {
           };
           const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
           const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
+          const row = document.createElement("tr");
 
-      return(`<div><small>${localDate}, ${localTime}</small>: <strong>${msg.author}</strong><br>&nbsp;&nbsp;&nbsp; ${msg.content}</div>`)
-    }
-    ).join("");
-    chatBox.innerHTML = html
+          row.innerHTML = `<div>
+            <small>${localDate}, ${localTime}</small>: <strong>${msg.author}</strong>`
+          if(window.admin) {
+            row.innerHTML += ` <button class="delete-button">Delete</button>`;
+          }
+          row.innerHTML += `&nbsp;&nbsp;&nbsp; ${msg.content}</div>`;
+          chatBox.appendChild(row);
+    });
   };
 
 
