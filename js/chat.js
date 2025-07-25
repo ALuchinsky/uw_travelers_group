@@ -34,6 +34,22 @@ async function loadChatMessages() {
     chatBox.innerHTML = "<p>Please log in to see the chat messages.</p>";
     return;
   } else {
+    if(window.admin) {
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete All Messages";
+      deleteButton.addEventListener("click", async () => {
+        if (doubleConfirm("Are you sure you want to delete all messages? This action cannot be undone.", "Please, rethink.")) {
+          const { error: deleteAllError } = await client.from("messages").delete().neq("id", -1); // Delete all messages
+          if (deleteAllError) {
+            console.error("Error deleting all messages:", deleteAllError);
+          } else {
+            console.log("All messages deleted successfully.");
+            loadChatMessages(); // Refresh the chat box
+          }
+        }
+      });
+      chatBox.appendChild(deleteButton);
+    }
     data.map(msg => {
           const isoString = msg.created_at;
           const date = new Date(isoString);
