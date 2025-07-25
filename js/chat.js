@@ -29,6 +29,7 @@ async function loadChatMessages() {
   }
 
   const chatBox = document.getElementById("chat-box");
+  chatBox.innerHTML = ""; // Clear previous messages
   if (window.currentUser == "Guest") {
     chatBox.innerHTML = "<p>Please log in to see the chat messages.</p>";
     return;
@@ -60,6 +61,18 @@ async function loadChatMessages() {
             row.innerHTML += ` <button class="delete-button">Delete</button>`;
           }
           row.innerHTML += `&nbsp;&nbsp;&nbsp; ${msg.content}</div>`;
+          if(window.admin) {
+            row.querySelector(".delete-button").addEventListener("click", async (event) => {
+                  event.stopPropagation(); // Prevent row click event
+                  if(doubleConfirm(`Are you sure you want to delete  message? ${msg.id}?`)) {
+                    await deleteChatMessage(msg.id).then(() => {
+                      console.log("Message deleted successfully");
+                      loadChatMessages();
+                    });
+                  }
+                
+            });
+          }
           chatBox.appendChild(row);
     });
   };
@@ -80,3 +93,10 @@ document.getElementById("chat_text").addEventListener("keydown", function (event
   }
 });
 
+async function deleteChatMessage(messageId) {
+  console.log("Deleting message with ID:", messageId);
+  const { error } = await client.from("messages").delete().eq("id", messageId);
+  if (error) {
+    console.error("Failed to delete message:", error);
+  }
+}
