@@ -96,6 +96,13 @@
   width: 10px;
 }
 
+.theme-list-last-post {
+  text-align: center;
+  width: 160px;
+  font-size: small;
+}
+
+
 .rooms-list-num-rooms {
   text-align: center;
   width: 10px;
