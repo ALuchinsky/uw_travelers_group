@@ -118,12 +118,14 @@ async function renderRooms(theme_id, theme_topic) {
 
     // access rooms for this theme using RPC
     console.log("rpc: Loading rooms for theme ", theme_id)
-    const { data: roomsData, error: roomsError } = await client.rpc("get_rooms_for_theme", { t_id: theme_id });
+    const { data: roomsData, error: roomsError } = await client.rpc("get_rooms_with_last_post", { t_id: theme_id });
     console.log("roomsData = ", roomsData)
     if (roomsError) {
         console.error("Error loading rooms for theme:", roomsError);
         return;
     }
+
+
 
 
     const rooms_table = document.createElement("table")
@@ -132,6 +134,7 @@ async function renderRooms(theme_id, theme_topic) {
     header.innerHTML = `
         <th class="rooms-list-topic"> Topic </th>
         <th class="rooms-list-num-rooms"> # MSG</th>
+        <th class="rooms-list-last-post"> Last post </th>
     `
     if(window.admin) {
         header.innerHTML += `<th class="rooms-list-delete" style="width:100px;">Actions</th>`
@@ -142,6 +145,7 @@ async function renderRooms(theme_id, theme_topic) {
         row.innerHTML = `
         <td class="rooms-list-topic">${item.topic}</td>
         <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
+        <td class="rooms-list-last-post">${item.last_post_author ? item.last_post_author.split(" ")[0] : "No posts yet"}</td>
         `
         if(window.admin) {
             row.innerHTML += `<td class="rooms-list-delete">

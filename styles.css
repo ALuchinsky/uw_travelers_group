@@ -101,6 +101,12 @@
   width: 10px;
 }
 
+.rooms-list-last-post {
+  text-align: center;
+  width: 160px;
+}
+
+
 .rooms-list-topic {
   color: darkred;
 }
