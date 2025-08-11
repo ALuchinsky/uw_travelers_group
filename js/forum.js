@@ -97,6 +97,8 @@ async function renderThemes() {
             ${isoString}
             <br>
             ${item.last_post_author ? item.last_post_author.split(" ")[0] : "No posts yet"}
+            <br>
+            ${item.last_post_room ? " room  \"" + item.last_post_room + "\"": ""}
         </td>
         `
         if(window.admin) {
