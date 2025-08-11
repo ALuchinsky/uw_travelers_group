@@ -145,7 +145,11 @@ async function renderRooms(theme_id, theme_topic) {
         row.innerHTML = `
         <td class="rooms-list-topic">${item.topic}</td>
         <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
-        <td class="rooms-list-last-post">${item.last_post_author ? item.last_post_author.split(" ")[0] : "No posts yet"}</td>
+        <td class="rooms-list-last-post">
+            aaa
+            <br>
+            ${item.last_post_author ? item.last_post_author.split(" ")[0] : "No posts yet"}
+        </td>
         `
         if(window.admin) {
             row.innerHTML += `<td class="rooms-list-delete">
