@@ -15,7 +15,7 @@ async function renderThemes() {
     // debugger;
     console.log("renderThemes: ", window.currentUser);
     console.log("Loading themes")
-    const {data: themesData, error:themesEror} = await client.rpc("get_themes");
+    const {data: themesData, error:themesEror} = await client.rpc("get_themes_with_stats");
     if (themesEror) {
         console.error("Error loading themes:", themesEror);
         return;
@@ -40,6 +40,7 @@ async function renderThemes() {
         <th> Topic </th>
         <th "theme-list-num-rooms"> # RMS</th>
         <th class="theme-list-num-messages"> # MSG</th>
+        <th class="theme-list-last-post"> Last post </th>
     `
     if(window.admin) {
         header.innerHTML += `<th class="theme-list-delete" style="width:10px">Delete</th>`
@@ -55,6 +56,33 @@ async function renderThemes() {
 
     themesData.map( (item) => {
         const row = document.createElement("tr")
+                let isoString = item.last_post_date;
+        if (!isoString) {
+            isoString = "No posts yet";
+        }
+        else {
+            const date = new Date(isoString);
+            const dateOptions = {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                timeZone: "America/New_York"
+            };
+
+            // Options for the time part
+            const timeOptions = {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "America/New_York"
+            };
+
+            // Generate strings
+            const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
+            const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
+            isoString = `${localDate},  ${localTime}`;
+        }
+
         row.innerHTML = `
         <td>
             <div class="theme-list-topic">
@@ -65,6 +93,13 @@ async function renderThemes() {
         </td>
         <td class = "theme-list-num-rooms"> ${item.num_rooms}</td>
         <td class="theme-list-num-messages"> ${ item.num_messages ? item.num_messages : 0}</td>
+        <td class="theme-list-last-post">
+            ${isoString}
+            <br>
+            ${item.last_post_author ? item.last_post_author.split(" ")[0] : "No posts yet"}
+            <br>
+            ${item.last_post_room ? " room  \"" + item.last_post_room + "\"": ""}
+        </td>
         `
         if(window.admin) {
             row.innerHTML += `
@@ -118,12 +153,14 @@ async function renderRooms(theme_id, theme_topic) {
 
     // access rooms for this theme using RPC
     console.log("rpc: Loading rooms for theme ", theme_id)
-    const { data: roomsData, error: roomsError } = await client.rpc("get_rooms_for_theme", { t_id: theme_id });
+    const { data: roomsData, error: roomsError } = await client.rpc("get_rooms_with_last_post", { t_id: theme_id });
     console.log("roomsData = ", roomsData)
     if (roomsError) {
         console.error("Error loading rooms for theme:", roomsError);
         return;
     }
+
+
 
 
     const rooms_table = document.createElement("table")
@@ -132,16 +169,49 @@ async function renderRooms(theme_id, theme_topic) {
     header.innerHTML = `
         <th class="rooms-list-topic"> Topic </th>
         <th class="rooms-list-num-rooms"> # MSG</th>
+        <th class="rooms-list-last-post"> Last post </th>
     `
     if(window.admin) {
         header.innerHTML += `<th class="rooms-list-delete" style="width:100px;">Actions</th>`
     }
     rooms_table.appendChild(header)
     roomsData.map( (item) => {
+        let isoString = item.last_post_date;
+        if (!isoString) {
+            isoString = "No posts yet";
+        }
+        else {
+            const date = new Date(isoString);
+            const dateOptions = {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                timeZone: "America/New_York"
+            };
+
+            // Options for the time part
+            const timeOptions = {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "America/New_York"
+            };
+
+            // Generate strings
+            const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
+            const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
+            isoString = `${localDate},  ${localTime}`;
+        }
+
         const row = document.createElement("tr")
         row.innerHTML = `
         <td class="rooms-list-topic">${item.topic}</td>
         <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
+        <td class="rooms-list-last-post">
+            ${isoString}
+            <br>
+            ${item.last_post_author ? item.last_post_author.split(" ")[0] : "No posts yet"}
+        </td>
         `
         if(window.admin) {
             row.innerHTML += `<td class="rooms-list-delete">
