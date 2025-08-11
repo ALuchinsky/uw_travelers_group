@@ -141,12 +141,39 @@ async function renderRooms(theme_id, theme_topic) {
     }
     rooms_table.appendChild(header)
     roomsData.map( (item) => {
+        let isoString = item.last_post_date;
+        if (!isoString) {
+            isoString = "No posts yet";
+        }
+        else {
+            const date = new Date(isoString);
+            const dateOptions = {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                timeZone: "America/New_York"
+            };
+
+            // Options for the time part
+            const timeOptions = {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "America/New_York"
+            };
+
+            // Generate strings
+            const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
+            const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
+            isoString = `${localDate},  ${localTime}`;
+        }
+
         const row = document.createElement("tr")
         row.innerHTML = `
         <td class="rooms-list-topic">${item.topic}</td>
         <td class="rooms-list-num-rooms"> ${item.num_messages} </td>
         <td class="rooms-list-last-post">
-            aaa
+            ${isoString}
             <br>
             ${item.last_post_author ? item.last_post_author.split(" ")[0] : "No posts yet"}
         </td>
