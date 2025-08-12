@@ -1,4 +1,4 @@
-console.log("Loading forum functions...");
+debug_print("Loading forum functions...");
 
 /***  loads data from supabas
  ** This function retrieves data from a specified Supabase table.  
@@ -36,10 +36,10 @@ console.log("Loading forum functions...");
  * Creates new room for the particular theme
  */
 async function createNewRoom(theme_id, theme_topic){
-        console.log("Create new room button clicked")
+        debug_print("Create new room button clicked")
         const room_topic = prompt("Enter room topic")
         if(room_topic) {
-            console.log("Creating new room with topic: ", room_topic)
+            debug_print("Creating new room with topic: ", room_topic)
             const to_insert = {
                 theme_id: theme_id,
                 topic: room_topic,
@@ -52,13 +52,13 @@ async function createNewRoom(theme_id, theme_topic){
                     if (error) {
                         console.error("Error creating room:", error);
                     } else {
-                        console.log("Room created successfully:", data);
+                        debug_print("Room created successfully:", data);
                         renderRooms(theme_id, theme_topic); // Refresh the rooms list
                     }
                 });
 
         } else {
-            console.log("Room topic is empty, not creating room")
+            debug_print("Room topic is empty, not creating room")
         }
     }
 /***   End of createNewRoom */
@@ -75,7 +75,7 @@ async function deleteRoom(room_id, theme_id, theme_topic) {
     if (msgError) {
         console.error("Error deleting messages:", msgError);
     } else {
-        console.log("All messages deleted for room", room_id);
+        debug_print("All messages deleted for room", room_id);
     }
 
     // Delete the room itself
@@ -87,7 +87,7 @@ async function deleteRoom(room_id, theme_id, theme_topic) {
         console.error("Error deleting room:", roomError);
         return;
     } else {
-        console.log("Room deleted:", room_id);
+        debug_print("Room deleted:", room_id);
     }
     // Refresh rooms list
     renderRooms(theme_id, theme_topic);
@@ -100,11 +100,11 @@ async function deleteRoom(room_id, theme_id, theme_topic) {
  */
 async function createNewTheme() {
 
-    console.log("Create new theme button clicked")
+    debug_print("Create new theme button clicked")
     const theme_title = prompt("Enter theme title")
     const theme_descr = prompt("Enter theme description")
     if(theme_title && theme_descr) {
-      console.log("Creating new theme with title: ", theme_title, " and description: ", theme_descr)
+      debug_print("Creating new theme with title: ", theme_title, " and description: ", theme_descr)
       const to_insert = {
         topic: theme_title,
         description: theme_descr,
@@ -119,12 +119,12 @@ async function createNewTheme() {
           if (error) {
             console.error("Error creating theme:", error);
           } else {
-            console.log("Theme created successfully:", data);
+            debug_print("Theme created successfully:", data);
             renderThemes(); // Refresh the themes list
           }
         });
     } else {
-      console.log("Theme title or description is empty, not creating theme")
+      debug_print("Theme title or description is empty, not creating theme")
     }
 }
 /********* End of createNewTheme */
@@ -177,7 +177,7 @@ async function deleteTheme(theme_id) {
     if (themeDeleteError) {
         console.error("Error deleting theme:", themeDeleteError);
     } else {
-        console.log("Theme deleted:", theme_id);
+        debug_print("Theme deleted:", theme_id);
     }
 
     // Refresh themes list
@@ -212,7 +212,7 @@ async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_to
  * Sends a message to a specific forum room
  */
 async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text) {
-    console.log(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
+    debug_print(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
   const to_insert = {
     room_id: room_id,
     author_id: window.currentUser,
@@ -247,7 +247,7 @@ async function deleteMessage(message_id)
             console.error("Error deleting message:", deleteError);
             return false; // Indicate failure
         } else {
-            console.log("Message deleted:", message_id);
+            debug_print("Message deleted:", message_id);
             return true; // Indicate successful deletion
             // Refresh messages list
         }

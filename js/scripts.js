@@ -25,7 +25,7 @@
 
 
 function renderScheduleTable(data) {
-  console.log("Rendering Schedule table")
+  debug_print("Rendering Schedule table")
   const container = document.getElementById("schedule-table");
 
   let html = '<table border="1" cellpadding="5" cellspacing="0">';
@@ -66,7 +66,7 @@ async function loadSchedule() {
       return;
     }
     window.oldData = JSON.parse(JSON.stringify(data));
-    window.schedule_data = JSON.parse(JSON.stringify(data));    console.log("data = ", data)
+    window.schedule_data = JSON.parse(JSON.stringify(data));    debug_print("data = ", data)
     renderScheduleTable(window.schedule_data); // ✅ call render after loading
 }
 

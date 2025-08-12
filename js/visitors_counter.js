@@ -1,4 +1,4 @@
-console.log("visitors_counter.js loaded");
+debug_print("visitors_counter.js loaded");
 
 async function getPublicIP() {
   const res = await fetch("https://api64.ipify.org?format=json");
@@ -9,7 +9,7 @@ async function getPublicIP() {
 async function logVisit() {
     ip = "unknown";
     getPublicIP().then(ip => {
-        console.log("Your IP is:", ip);
+        debug_print("Your IP is:", ip);
         return ip;
     })
     .then(async (ip) => {
@@ -20,7 +20,7 @@ async function logVisit() {
             if (error) {
                 console.error("Error logging visit:", error);
             } else {
-                console.log("Visit logged successfully:", data);
+                debug_print("Visit logged successfully:", data);
             }
         })        
     });
@@ -51,10 +51,10 @@ async function updateVisitorsCount() {
     console.error("❌ RPC error:", visitsError);
     } else {
     const result = visitsData[0];  // `rpc()` returns an array with one object
-    console.log("📊 Total visits:", result.total_count);
-    console.log("📅 Visits this week:", result.this_week_count);
-    console.log("🧠 Unique IPs:", result.unique_count);
-    console.log("🌐 Unique IPs this week:", result.unique_this_week_count);
+    debug_print("📊 Total visits:", result.total_count);
+    debug_print("📅 Visits this week:", result.this_week_count);
+    debug_print("🧠 Unique IPs:", result.unique_count);
+    debug_print("🌐 Unique IPs this week:", result.unique_this_week_count);
     document.getElementById("visitors-count").innerText = 
         `Total: ${result.total_count}, This week: ${result.this_week_count}, Unique IPs: ${result.unique_count}, Unique this week: ${result.unique_this_week_count}`;
     }
