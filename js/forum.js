@@ -13,14 +13,14 @@ function doubleConfirm(message1, message2) {
 
 async function renderThemes() {
     // debugger;
-    console.log("renderThemes: ", window.currentUser);
-    console.log("Loading themes")
+    debug_print("renderThemes: ", window.currentUser);
+    debug_print("Loading themes")
     const {data: themesData, error:themesEror} = await client.rpc("get_themes_with_stats");
     if (themesEror) {
         console.error("Error loading themes:", themesEror);
         return;
     }
-    console.log("themesData = ", themesData)
+    debug_print("themesData = ", themesData)
 
     const themeBox = document.getElementById("forum_themes");
     themeBox.textContent = ""
@@ -48,7 +48,7 @@ async function renderThemes() {
     themes_table.appendChild(header)
 
     if(window.currentUser === "Guest") { 
-        console.log("Guest user, not rendering themes");
+        debug_print("Guest user, not rendering themes");
         document.getElementById("forum_themes").innerHTML = "<p>Please log in to see the forum themes.</p>";
         return;
     }
@@ -116,7 +116,7 @@ async function renderThemes() {
             })
         }
             row.querySelector(".theme-list-topic").addEventListener("click", () => {
-            console.log("You have clicked item ", item.theme_id)
+            debug_print("You have clicked item ", item.theme_id)
             renderRooms(item.theme_id, item.topic)
         });
 
@@ -132,7 +132,7 @@ async function renderThemes() {
  * Render rooms list of the particular theme
  */
 async function renderRooms(theme_id, theme_topic) {
-    console.log("renderRooms: ", theme_id);
+    debug_print("renderRooms: ", theme_id);
     const themeBox = document.getElementById("forum_themes");
     themeBox.innerHTML = `<div>Rooms for theme "${theme_topic}"</div>`
 
@@ -152,9 +152,9 @@ async function renderRooms(theme_id, theme_topic) {
 
 
     // access rooms for this theme using RPC
-    console.log("rpc: Loading rooms for theme ", theme_id)
+    debug_print("rpc: Loading rooms for theme ", theme_id)
     const { data: roomsData, error: roomsError } = await client.rpc("get_rooms_with_last_post", { t_id: theme_id });
-    console.log("roomsData = ", roomsData)
+    debug_print("roomsData = ", roomsData)
     if (roomsError) {
         console.error("Error loading rooms for theme:", roomsError);
         return;
@@ -228,27 +228,27 @@ async function renderRooms(theme_id, theme_topic) {
                 })
             row.querySelector(".move-button").addEventListener("click", async (event) => {
                 event.stopPropagation(); // Prevent row click event
-                console.log("Move room button clicked")
+                debug_print("Move room button clicked")
                 const {data: themesData, error:themesError} = await client.rpc("get_themes");
                     if (themesError) {
                         console.error("Error loading themes:", themesEror);
                         return;
                     }
-                    console.log("Themes loaded:", themesData);
+                    debug_print("Themes loaded:", themesData);
                 const new_theme_index = prompt("Enter theme number to move room to (1 - " + themesData.length + "):") - 1;
                 if (new_theme_index < 0 || new_theme_index >= themesData.length) {
                     console.error("Invalid theme index:", new_theme_index);
                     return;
                 }
-                console.log("Moving room ", item.room_id, " to theme ", themesData[new_theme_index].theme_id, " with topic ", themesData[new_theme_index].topic);
+                debug_print("Moving room ", item.room_id, " to theme ", themesData[new_theme_index].theme_id, " with topic ", themesData[new_theme_index].topic);
                 if (doubleConfirm(
                     `Are you sure you want to move room "${item.topic}" to theme "${themesData[new_theme_index].topic}"?`,
                     "Please, rethink, this action cannot be undone.")) {
-                    console.log("Moving room ", item.room_id, " to theme ", themesData[new_theme_index].theme_id, " with topic ", themesData[new_theme_index].topic);
+                    debug_print("Moving room ", item.room_id, " to theme ", themesData[new_theme_index].theme_id, " with topic ", themesData[new_theme_index].topic);
                     moveRoomToTheme(item.room_id, theme_id, themesData[new_theme_index].theme_id, themesData[new_theme_index].topic);
                 }
                 else {
-                    console.log("Room move cancelled");
+                    debug_print("Room move cancelled");
                     return;
                 }
                 // Move the room to the new theme
@@ -257,7 +257,7 @@ async function renderRooms(theme_id, theme_topic) {
             })
         }
         row.querySelector(".rooms-list-topic").addEventListener("click", () => {
-            console.log("You have clicked room  ", item.room_id)
+            debug_print("You have clicked room  ", item.room_id)
             renderMessages(item.room_id, item.topic, theme_id, theme_topic)
         });
         rooms_table.appendChild(row)
@@ -273,7 +273,7 @@ async function renderRooms(theme_id, theme_topic) {
  * Renders messages from particular room off particular topic
  */
 async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
-    console.log("renderMessages: ", room_id);
+    debug_print("renderMessages: ", room_id);
     const themeBox = document.getElementById("forum_themes");
     themeBox.innerHTML = `<div>Messages for room "${room_topic}"</div>`
 
@@ -282,7 +282,7 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
     back_button.textContent = "Back to rooms"
     back_button.classList.add("back-button")
     back_button.addEventListener("click", () => {
-        console.log("!!!")
+        debug_print("!!!")
         renderRooms(theme_id, theme_topic)
     })
     themeBox.appendChild(back_button)
@@ -295,12 +295,12 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
         .eq("room_id", room_id)
         .order("created_at", { ascending: true });
     if(error) {
-        console.log("Messages for room ", room_id, " loaded with error", error)
+        debug_print("Messages for room ", room_id, " loaded with error", error)
     }
     
     
 
-    console.log("messages = ", data)
+    debug_print("messages = ", data)
     const messages_table = document.createElement("table")
     messages_table.classList.add("bordered-table")
     const header = document.createElement("tr")
@@ -357,7 +357,7 @@ async function renderMessages(room_id, room_topic, theme_id, theme_topic) {
             });
         }
         row.addEventListener("click", () => {
-            console.log("You have clicked message  ", item.message_id)
+            debug_print("You have clicked message  ", item.message_id)
         });
         messages_table.appendChild(row)
     })
