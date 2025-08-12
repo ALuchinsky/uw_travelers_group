@@ -3,7 +3,11 @@
  */
 window.currentUser = "Guest";
 
-
+function debug_print(...args) {
+  if(window.admin) {
+         console.log("DEBUG:", ...args);
+  }
+}
 
 
 /**********
@@ -22,7 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
   } else {
     window.admin = false; // default to false if not set
   }
-  console.log("currentUser", currentUser, "admin", window.admin);
+  debug_print("currentUser", currentUser, "admin", window.admin);
 })
 
 /******
@@ -45,7 +49,7 @@ async function loginUser() {
     .select("*")
     .eq("login_name", name);
 
-    console.log("usersData", usersData, "usersError", usersError);
+    debug_print("usersData", usersData, "usersError", usersError);
 
     if( usersError) {
         console.error("Failed to load user data:", usersError);
@@ -54,13 +58,13 @@ async function loginUser() {
     }
 
     if(usersData.length > 0) {
-        console.log("User found:", usersData[0]);
+        debug_print("User found:", usersData[0]);
         if (!usersData[0].password) {
           name = usersData[0].display_name || name; // use display name if available
           window.admin = false; // no password means not an admin
         } else {
           const password = prompt("Enter your password:");
-          console.log("password", password, "usersData[0].password", usersData[0].password);
+          debug_print("password", password, "usersData[0].password", usersData[0].password);
           if (!password) {
               alert("Password is required.");
               name = "Guest"; // reset name if no password provided
@@ -76,7 +80,7 @@ async function loginUser() {
         name = "Guest"; // reset name if user not found
     }
   
-    console.log("usersData", usersData, "usersError", usersError);
+    debug_print("usersData", usersData, "usersError", usersError);
 
 
     window.currentUser = name;

@@ -2,7 +2,7 @@
  * Renders schedule data and shown it in schedule-table div
  */
 function renderScheduleTable(data) {
-  console.log("Rendering Schedule table")
+  debug_print("Rendering Schedule table")
   const container = document.getElementById("schedule-table");
 
   let html = '<table border="1" cellpadding="5" cellspacing="0">';
@@ -45,7 +45,7 @@ async function loadSchedule() {
       return;
     }
     window.oldData = JSON.parse(JSON.stringify(data));
-    window.schedule_data = JSON.parse(JSON.stringify(data));    console.log("data = ", data)
+    window.schedule_data = JSON.parse(JSON.stringify(data));    debug_print("data = ", data)
     renderScheduleTable(window.schedule_data); // ✅ call render after loading
 }
 document.addEventListener('DOMContentLoaded', loadSchedule);
@@ -75,9 +75,9 @@ function handleCellDoubleClick(column, rowIndex) {
  * undoes all the changes and reverts the schedule to the original
  */
 function revertSchedule() {
-    console.log("clicked")
+    debug_print("clicked")
     window.schedule_data =JSON.parse(JSON.stringify(window.oldData))
-    console.log(window.schedule_data)
+    debug_print(window.schedule_data)
     renderScheduleTable(window.schedule_data); // ✅ call render after loading
 }
 
@@ -85,7 +85,7 @@ function revertSchedule() {
  * Sends information about the schedule changes to alexey.luchinsky@gmail.com
  */
 function saveSchedule() {
-    console.log("Saving")
+    debug_print("Saving")
     email_data = {
       name: "Travel Club Website",
       user: window.currentUser,
@@ -93,9 +93,9 @@ function saveSchedule() {
       message: JSON.stringify(window.schedule_data)
     }
     emailjs.send("service_xg53xju", "template_efpbkjn", email_data).then( () => {
-      console.log("Email sent successfully")
-      console.log("email_data = ", email_data)
+      debug_print("Email sent successfully")
+      debug_print("email_data = ", email_data)
     }).catch( (error) => {
-      console.log("Email sent with error ", error)
+      debug_print("Email sent with error ", error)
     })
   }

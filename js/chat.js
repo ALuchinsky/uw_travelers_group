@@ -9,7 +9,7 @@ async function sendMessage() {
       content: content,
       created_at: new Date().toISOString()
     };
-  console.log("inserting ", to_insert)
+  debug_print("inserting ", to_insert)
 
   await client.from("messages").insert([to_insert]);
 
@@ -18,7 +18,7 @@ async function sendMessage() {
 }
 
 async function loadChatMessages() {
-  // console.log("Loading chat messages")
+  // debug_print("Loading chat messages")
   const { data, error } = await client
     .from("messages")
     .select("*")
@@ -43,7 +43,7 @@ async function loadChatMessages() {
           if (deleteAllError) {
             console.error("Error deleting all messages:", deleteAllError);
           } else {
-            console.log("All messages deleted successfully.");
+            debug_print("All messages deleted successfully.");
             loadChatMessages(); // Refresh the chat box
           }
         }
@@ -82,7 +82,7 @@ async function loadChatMessages() {
                   event.stopPropagation(); // Prevent row click event
                   if(doubleConfirm(`Are you sure you want to delete  message? ${msg.id}?`)) {
                     await deleteChatMessage(msg.id).then(() => {
-                      console.log("Message deleted successfully");
+                      debug_print("Message deleted successfully");
                       loadChatMessages();
                     });
                   }
@@ -110,7 +110,7 @@ document.getElementById("chat_text").addEventListener("keydown", function (event
 });
 
 async function deleteChatMessage(messageId) {
-  console.log("Deleting message with ID:", messageId);
+  debug_print("Deleting message with ID:", messageId);
   const { error } = await client.from("messages").delete().eq("id", messageId);
   if (error) {
     console.error("Failed to delete message:", error);
