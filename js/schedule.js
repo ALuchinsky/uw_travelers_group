@@ -84,8 +84,13 @@ function revertSchedule() {
 /***********
  * Sends information about the schedule changes to alexey.luchinsky@gmail.com
  */
-function saveSchedule() {
-    debug_print("Saving")
+async function saveSchedule() {
+  if(window.currentUser === "Guest" || !window.currentUser) {
+    debug_print("You must be logged in to save the schedule.");
+    return;
+  };
+  debug_print("Saving")
+  if(! window.admin ) {
     email_data = {
       name: "Travel Club Website",
       user: window.currentUser,
@@ -98,4 +103,48 @@ function saveSchedule() {
     }).catch( (error) => {
       debug_print("Email sent with error ", error)
     })
+  } else {
+    debug_print("Admin user, not sending email")
+    debug_print("schedule_data = ", window.schedule_data)
+    window.schedule_data = window.schedule_data.map(entry => {
+      const cleanedEntry = { ...entry };
+      ['Date', 'Hosts', 'Presenters', 'Topic'].forEach(key => {
+        if (typeof cleanedEntry[key] === 'string') {
+          cleanedEntry[key] = cleanedEntry[key].replace(/^\((.*)\)$/, '$1');
+        }
+      });
+      return cleanedEntry;
+    });
+    const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
+    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Delete all existing rows
+    await client.from('schedule2025').delete().neq('id', 0);
+
+    // Insert new data
+    const { error } = await client.from('schedule2025').insert(window.schedule_data);
+
+    if (error) {
+      debug_print("Error saving to Supabase:", error);
+    } else {
+      alert("Schedule saved to Supabase successfully");
+    }
+    renderScheduleTable(window.schedule_data);
   }
+}
+
+function downloadSchedule() {
+  const workbook = XLSX.utils.book_new();
+  // Exclude the 'id' column from the exported data
+  const exportData = window.schedule_data.map(({ id, ...rest }) => rest);
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Schedule");
+
+  // Generate a file name based on the current date
+  const today = new Date();
+  const fileName = `Schedule_${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}.xlsx`;
+
+  // Save the file
+  XLSX.writeFile(workbook, fileName);
+}
