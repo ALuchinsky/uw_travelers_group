@@ -128,8 +128,23 @@ async function saveSchedule() {
     if (error) {
       debug_print("Error saving to Supabase:", error);
     } else {
-      debug_print("Schedule saved to Supabase successfully");
+      alert("Schedule saved to Supabase successfully");
     }
     renderScheduleTable(window.schedule_data);
   }
+}
+
+function downloadSchedule() {
+  const workbook = XLSX.utils.book_new();
+  // Exclude the 'id' column from the exported data
+  const exportData = window.schedule_data.map(({ id, ...rest }) => rest);
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Schedule");
+
+  // Generate a file name based on the current date
+  const today = new Date();
+  const fileName = `Schedule_${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}.xlsx`;
+
+  // Save the file
+  XLSX.writeFile(workbook, fileName);
 }

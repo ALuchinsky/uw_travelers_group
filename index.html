@@ -12,7 +12,7 @@
 <script src="./js/forum_functions.js"></script>
 <body>
 
-
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
 </script>
@@ -79,7 +79,12 @@ SCHEDULE TABLE
 <div id="schedule-table"></div>
 
 <br>
-Click <a href="./data/schedules/Schedule 2025 - 2026.xlsx">HERE</a> to download the Excel file
+Click <button id="download_btn">HERE</button> to download the Excel file
+<script>
+    document.getElementById("download_btn").onclick = function() {
+        downloadSchedule();
+    }
+</script>
 
 <hr>
 <h2> Past Presentations</h2>
