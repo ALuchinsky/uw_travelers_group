@@ -85,7 +85,12 @@ function revertSchedule() {
  * Sends information about the schedule changes to alexey.luchinsky@gmail.com
  */
 function saveSchedule() {
-    debug_print("Saving")
+  if(window.currentUser === "Guest" || !window.currentUser) {
+    debug_print("You must be logged in to save the schedule.");
+    return;
+  };
+  debug_print("Saving")
+  if(! window.admin ) {
     email_data = {
       name: "Travel Club Website",
       user: window.currentUser,
@@ -98,4 +103,7 @@ function saveSchedule() {
     }).catch( (error) => {
       debug_print("Email sent with error ", error)
     })
+  } else {
+    debug_print("Admin user, not sending email")
   }
+}
