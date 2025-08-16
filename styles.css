@@ -79,11 +79,13 @@
 
 .theme-title {
   color: green;
+  cursor: pointer;
 }
 
 .theme-descr {
   font-size: smaller;
   font-style: italic;
+  cursor: pointer;
 }
 
 .theme-list-num-messages {
@@ -117,6 +119,7 @@
 
 .rooms-list-topic {
   color: darkred;
+  cursor: pointer;
 }
 
 .messages-list-text {
