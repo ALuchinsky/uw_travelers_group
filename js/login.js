@@ -56,26 +56,31 @@ async function loginUser() {
     if( usersError) {
         console.error("Failed to load user data:", usersError);
         alert("Failed to load user data. Please try again.");
+        logVisit(name, "login_error_not_found");
         return;
     }
 
     if(usersData.length > 0) {
         debug_print("User found:", usersData[0]);
-        if (!usersData[0].password) {
+        if (!usersData[0].password) { 
           name = usersData[0].display_name || name; // use display name if available
           window.admin = false; // no password means not an admin
+          logVisit(name, "login_user_success");
         } else {
           const password = prompt("Enter your password:");
           debug_print("password", password, "usersData[0].password", usersData[0].password);
           if (!password) {
               alert("Password is required.");
               name = "Guest"; // reset name if no password provided
+              logVisit(name, "login_admin_failed");
           } else if (usersData[0].password !== password) {
               alert("Incorrect password.");
               name = "Guest"; // reset name if password is incorrect
+              logVisit(name, "login_admin_failed");
           } else {
               name = usersData[0].display_name; // use display name if available
               window.admin = usersData[0].admin; // set admin status
+              logVisit(name, "login_admin_success");
           }
         }
     } else {

@@ -18,12 +18,12 @@ async function logVisit(user = null, reason = "open") {
     .then(async (ip) => {
     await client
         .from("visits")
-        .insert([{ ip_address: ip, timestamp: new Date().toISOString(), user: user, reason: "open"}])
+        .insert([{ ip_address: ip, timestamp: new Date().toISOString(), user: user, reason: reason}])
         .then(({ data, error }) => {
             if (error) {
                 console.error("Error logging visit:", error);
             } else {
-                debug_print("Visit logged successfully:", data);
+                console.log('Visit logged successfully: user:', user, 'reason:', reason, 'ip:', ip);
             }
         })        
     });
