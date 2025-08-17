@@ -6,8 +6,11 @@ async function getPublicIP() {
   return data.ip;
 }
 
-async function logVisit() {
+async function logVisit(user = null, reason = "open") {
     ip = "unknown";
+    if (!user) {
+        user = window.currentUser || "Guest";
+    }
     getPublicIP().then(ip => {
         debug_print("Your IP is:", ip);
         return ip;
@@ -15,7 +18,7 @@ async function logVisit() {
     .then(async (ip) => {
     await client
         .from("visits")
-        .insert([{ ip_address: ip, timestamp: new Date().toISOString() }])
+        .insert([{ ip_address: ip, timestamp: new Date().toISOString(), user: user, reason: "open"}])
         .then(({ data, error }) => {
             if (error) {
                 console.error("Error logging visit:", error);
@@ -27,7 +30,6 @@ async function logVisit() {
 
 }
 
-logVisit();
 
 document.getElementById("visitors-counter").innerHTML = `
     <p>Visitors counter: <span id="visitors-count">Loading...</span></p>`

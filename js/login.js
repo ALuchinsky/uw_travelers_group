@@ -27,6 +27,8 @@ window.addEventListener("DOMContentLoaded", () => {
     window.admin = false; // default to false if not set
   }
   debug_print("currentUser", currentUser, "admin", window.admin);
+  logVisit(currentUser, "open"); // log visit on page load
+
 })
 
 /******
