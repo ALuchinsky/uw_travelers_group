@@ -12,7 +12,6 @@ function doubleConfirm(message1, message2) {
 
 
 async function renderThemes() {
-    // debugger;
     debug_print("renderThemes: ", window.currentUser);
     debug_print("Loading themes")
     const {data: themesData, error:themesEror} = await client.rpc("get_themes_with_stats");
