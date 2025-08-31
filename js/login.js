@@ -104,7 +104,7 @@ async function loginUser() {
   console.log("Dialog shown");
 }
 
-function doLogin(name, isAdmin) {
+function doLogin(name, isAdmin, showAlert=true) {
   window.currentUser = name;
   window.admin = isAdmin;
   localStorage.setItem("currentUser", name);
@@ -113,15 +113,14 @@ function doLogin(name, isAdmin) {
   let message = `Welcome to the Travel Club, ${name.split(" ")[0]}!`;
   if( name === "Guest") {
       message = "Welcome to the Travel Club! Your name and/or password was not recognized. Please log in again or contact the site administrator.";
-      alert(message);
-      renderThemes(); // refresh themes to show guest view
-      return;
   }
-  alert(message); // welcome message
-  window.location.reload(); // reload to apply changes
+  if( showAlert) {
+    alert(message); // welcome message
+  }
+  renderThemes(); // reload to apply changes
 }
 
 function logoutUser() {
   logVisit(window.currentUser, "logout");
-  doLogin("Guest", false);
+  doLogin("Guest", false, false);
 }
