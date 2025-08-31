@@ -36,18 +36,6 @@ window.addEventListener("DOMContentLoaded", () => {
 * Login Dialog version
 */
 
-document.body.insertAdjacentHTML("beforeend", `
-<dialog id = "login-dialog">
-    <form method="dialog">
-        <p><label>Enter your name: <input type="text" id="login-name-input"></label></p>
-        <p>Enter password: <input type="password" id="login-password-input"></p>
-        <menu>
-            <button id="login-submit-btn" value="submit">Submit</button>
-            <button id="login-cancel-btn" value="cancel">Cancel</button>
-        </menu>
-    </form>
-</dialog>
-`);
 
 async function loginUser() {
   const dialog = document.getElementById("login-dialog");
