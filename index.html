@@ -29,6 +29,37 @@
 USER LOGIN BLOCK
 ========================
  -->
+
+<dialog id = "login-dialog">
+    <form method="dialog">
+        <p><label>Enter your name: <input type="text" id="login-name-input"></label></p>
+        <p>Enter password: <input type="password" id="login-password-input"></p>
+        <menu>
+            <button id="login-submit-btn" value="submit">Submit</button>
+            <button id="login-cancel-btn" value="cancel">Cancel</button>
+        </menu>
+    </form>
+</dialog>
+
+  <style>
+    dialog {
+      position: fixed !important;
+      inset: auto !important;          /* reset browser defaults */
+      top: 0rem !important;               /* pin to top */
+      left: 50% !important;            /* horizontally in the middle */
+      transform: translateX(-50%) !important;
+      margin: 0 !important;
+      padding: 1rem 2rem;
+      border: solid 1px #666;
+      border-radius: 6px;
+      background: white;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.4);
+    }
+  </style>
+
 <div id="login-bar" style="padding: 10px; background: #eef; display: flex; gap: 10px; align-items: center;">
   <button id="login_btn" onclick="loginUser()">Login</button>
   <span id="login-status" style="margin-left: 10px; font-weight: bold;"></span>
