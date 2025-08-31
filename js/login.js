@@ -120,3 +120,8 @@ function doLogin(name, isAdmin) {
   alert(message); // welcome message
   window.location.reload(); // reload to apply changes
 }
+
+function logoutUser() {
+  logVisit(window.currentUser, "logout");
+  doLogin("Guest", false);
+}
