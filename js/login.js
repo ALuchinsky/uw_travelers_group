@@ -92,8 +92,10 @@ async function loginUser() {
   console.log("Dialog shown");
 }
 
+
 function doLogin(name, isAdmin, showAlert=true) {
   window.currentUser = name;
+  toggleForumAndChat(window.currentUser && window.currentUser !== "Guest");
   window.admin = isAdmin;
   localStorage.setItem("currentUser", name);
   localStorage.setItem("admin", window.admin);
