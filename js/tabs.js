@@ -1,3 +1,18 @@
+function toggleForumAndChat(show) {
+  const forum = document.getElementById("forumBtn");
+  const chat = document.getElementById("chatBtn");
+
+  if (show) {
+    forum.style.display = "";  // reset to default
+    chat.style.display = "";
+  } else {
+    forum.style.display = "none";  // hide
+    chat.style.display = "none";
+  }
+}
+
+toggleForumAndChat(window.currentUser && window.currentUser !== "Guest");
+
 /***********
  * opens a specified tab
  */
