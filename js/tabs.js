@@ -1,3 +1,19 @@
+function toggleForumAndChat(show) {
+  const forum = document.getElementById("forumBtn");
+  const chat = document.getElementById("chatBtn");
+
+  if (show) {
+    forum.style.display = "";  // reset to default
+    chat.style.display = "";
+  } else {
+    forum.style.display = "none";  // hide
+    chat.style.display = "none";
+  }
+}
+
+console.log("Initial toggle of forum/chat buttons based on currentUser:", localStorage.getItem("currentUser"));
+toggleForumAndChat(localStorage.getItem("currentUser") && localStorage.getItem("currentUser") !== "Guest");
+
 /***********
  * opens a specified tab
  */

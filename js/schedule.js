@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', loadSchedule);
  */
 function handleCellDoubleClick(column, rowIndex) {
   if(window.currentUser === "Guest" || !window.currentUser) {
-    alert("You must be logged in to edit the schedule.");
     return;
   }
   const value = window.schedule_data[rowIndex][column];
