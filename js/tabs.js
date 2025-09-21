@@ -11,7 +11,8 @@ function toggleForumAndChat(show) {
   }
 }
 
-toggleForumAndChat(window.currentUser && window.currentUser !== "Guest");
+console.log("Initial toggle of forum/chat buttons based on currentUser:", localStorage.getItem("currentUser"));
+toggleForumAndChat(localStorage.getItem("currentUser") && localStorage.getItem("currentUser") !== "Guest");
 
 /***********
  * opens a specified tab
