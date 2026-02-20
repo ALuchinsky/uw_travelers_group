@@ -3,4 +3,5 @@ old/
 .DS_Store 
 .vscode/
 data/members.xlsx
-
+.#uw_travelers_group.org
+uw_travelers_group.org
