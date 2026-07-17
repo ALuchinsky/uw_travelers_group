@@ -1,3 +1,4 @@
+
 /******************************
  * Renders schedule data and shown it in schedule-table div
  */
@@ -32,20 +33,70 @@ function renderScheduleTable(data) {
  * Loads schedule from the supabase table schedule2025 and updates the page
  */
 async function loadSchedule() {
-    const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
-    const client = window.supabase.createClient(supabaseUrl, supabaseKey);
-    const { data, error } = await client
-      .from('schedule2025')
-      .select('*')
-      .order('Date', { ascending: true });
+    // const supabaseUrl = 'https://ooqcydaootqkowkhxhil.supabase.co';
+    // const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWN5ZGFvb3Rxa293a2h4aGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNjI2OTMsImV4cCI6MjA2NzYzODY5M30.NWS0b0alWEj9KAHpHyrcfyQ-2bri571atC0IEVBNeHI';
+    // const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+    // const { data, error } = await client
+    //   .from('schedule2025')
+    //   .select('*')
+    //   .order('Date', { ascending: true });
 
-    if (error) {
-      console.error('Error loading schedule:', error);
-      return;
-    }
-    window.oldData = JSON.parse(JSON.stringify(data));
-    window.schedule_data = JSON.parse(JSON.stringify(data));    debug_print("data = ", data)
+    // if (error) {
+    //   console.error('Error loading schedule:', error);
+    //   return;
+    // }
+    // window.oldData = JSON.parse(JSON.stringify(data));
+    // window.schedule_data = JSON.parse(JSON.stringify(data));    debug_print("data = ", data)
+    window.schedule_data = [
+  {
+    "Date": "Sep 27, 2026",
+    "Hosts": "",
+    "Presenters": "John Sampen, Marilyn Shrude",
+    "Topic": "Poland"
+  },
+  {
+    "Date": "Oct 25, 2026",
+    "Hosts": "Jacoby’s",
+    "Presenters": "Jacoby’s",
+    "Topic": "Antarctica"
+  },
+  {
+    "Date": "Nov 22, 2026",
+    "Hosts": "",
+    "Presenters": "",
+    "Topic": ""
+  },
+  {
+    "Date": "Jan 24, 2027",
+    "Hosts": "",
+    "Presenters": "Bullerjahn’s",
+    "Topic": ""
+  },
+  {
+    "Date": "Feb 28, 2027",
+    "Hosts": "Hilde F",
+    "Presenters": "",
+    "Topic": ""
+  },
+  {
+    "Date": "Mar 28, 2027",
+    "Hosts": "",
+    "Presenters": "",
+    "Topic": ""
+  },
+  {
+    "Date": "Apr 25, 2027",
+    "Hosts": "Roger and Betty Jean Anderson",
+    "Presenters": "",
+    "Topic": ""
+  },
+  {
+    "Date": "May 23, 2027",
+    "Hosts": "",
+    "Presenters": "",
+    "Topic": ""
+  }
+]
     renderScheduleTable(window.schedule_data); // ✅ call render after loading
 }
 document.addEventListener('DOMContentLoaded', loadSchedule);
