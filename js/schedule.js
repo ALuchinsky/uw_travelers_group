@@ -50,7 +50,7 @@ async function loadSchedule() {
     window.schedule_data = [
   {
     "Date": "Sep 27, 2026",
-    "Hosts": "",
+    "Hosts": "Denise Zephier",
     "Presenters": "John Sampen, Marilyn Shrude",
     "Topic": "Poland"
   },
@@ -80,9 +80,9 @@ async function loadSchedule() {
   },
   {
     "Date": "Mar 28, 2027",
-    "Hosts": "",
-    "Presenters": "",
-    "Topic": ""
+    "Hosts": "Sue and Dave Potter",
+    "Presenters": "Sue and Dave Potter",
+    "Topic": "Visit Indonesia"
   },
   {
     "Date": "Apr 25, 2027",
