@@ -62,9 +62,9 @@ async function loadSchedule() {
   },
   {
     "Date": "Nov 22, 2026",
-    "Hosts": "",
-    "Presenters": "",
-    "Topic": ""
+    "Hosts": "Daria, Aleksei",
+    "Presenters": "Carole Mathews",
+    "Topic": "Columbia River, Following Lewis and Clark"
   },
   {
     "Date": "Jan 24, 2027",
@@ -75,7 +75,7 @@ async function loadSchedule() {
   {
     "Date": "Feb 28, 2027",
     "Hosts": "Hilde F",
-    "Presenters": "",
+    "Presenters": "Bob and Sue K.",
     "Topic": ""
   },
   {
@@ -87,14 +87,14 @@ async function loadSchedule() {
   {
     "Date": "Apr 25, 2027",
     "Hosts": "Roger and Betty Jean Anderson",
-    "Presenters": "",
-    "Topic": ""
+    "Presenters": "Susan and George Winters",
+    "Topic": "Reno and Lake Tahoe"
   },
   {
     "Date": "May 23, 2027",
-    "Hosts": "",
-    "Presenters": "",
-    "Topic": ""
+    "Hosts": "Raul and Jo Ascunce",
+    "Presenters": "Bob and Joan Callecod",
+    "Topic": "French Polynesian Islands"
   }
 ]
     renderScheduleTable(window.schedule_data); // ✅ call render after loading
