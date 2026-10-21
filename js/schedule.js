@@ -52,7 +52,7 @@ async function loadSchedule() {
     "Date": "Sep 27, 2026",
     "Hosts": "Denise Zephier",
     "Presenters": "John Sampen, Marilyn Shrude",
-    "Topic": "Poland"
+    "Topic": "Musical Journey"
   },
   {
     "Date": "Oct 25, 2026",
