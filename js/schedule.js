@@ -62,13 +62,13 @@ async function loadSchedule() {
   },
   {
     "Date": "Nov 22, 2026",
-    "Hosts": "Daria, Aleksei",
-    "Presenters": "Carole Mathews",
-    "Topic": "Columbia River, Following Lewis and Clark"
+    "Hosts": "--- cancelled ---",
+    "Presenters": "--- cancelled ---",
+    "Topic": "--- cancelled ---"
   },
   {
     "Date": "Jan 24, 2027",
-    "Hosts": "",
+    "Hosts": "Daria and Alexey Luchinsky",
     "Presenters": "Bullerjahn’s",
     "Topic": ""
   },
@@ -79,7 +79,7 @@ async function loadSchedule() {
     "Topic": ""
   },
   {
-    "Date": "Mar 28, 2027",
+    "Date": "Mar 21, 2027",
     "Hosts": "Sue and Dave Potter",
     "Presenters": "Sue and Dave Potter",
     "Topic": "Visit Indonesia"
