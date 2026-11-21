@@ -1,256 +1,172 @@
-debug_print("Loading forum functions...");
+async function createNewRoom() {
+  const topic = prompt("Enter room name")?.trim();
+  if (!topic || !window.currentUid) return;
+  const description = prompt("Enter room description (optional)")?.trim() || "";
 
-/***  loads data from supabas
- ** This function retrieves data from a specified Supabase table.  
- ** @param {string} tableName - The name of the table to query.
- ** @param {Object} [query={}] - An optional query object to filter the results.
- * * * @returns {Promise<Array>} - A promise that resolves to an array of data from the table.
- */
- async function loadDataFromSupabase(tableName, query = {}, order= false) {
-    if(order) {
-        const { data, error } = await client
-            .from(tableName)
-            .select('*')
-            .match(query)
-            .order(order);
-        if (error) {
-            console.error(`Error loading data from ${tableName}:`, error);
-            return [];
-        }
-        return data;
-    } else {
-        const { data, error } = await client
-            .from(tableName)
-            .select('*')
-            .match(query);
-        if (error) {
-            console.error(`Error loading data from ${tableName}:`, error);
-            return [];
-        }
-        return data;
-    }
-
+  try {
+    await window.db.collection("forum_rooms").add({
+      topic,
+      description,
+      createdByUid: window.currentUid,
+      created_at: new Date().toISOString()
+    });
+    await renderRooms();
+  } catch (error) {
+    console.error("Error creating room:", error);
+    alert("The room could not be created.");
+  }
 }
 
-/****  
- * Creates new room for the particular theme
- */
-async function createNewRoom(theme_id, theme_topic){
-        debug_print("Create new room button clicked")
-        const room_topic = prompt("Enter room topic")
-        if(room_topic) {
-            debug_print("Creating new room with topic: ", room_topic)
-            const to_insert = {
-                theme_id: theme_id,
-                topic: room_topic,
-                num_messages: 0
-            };
-            client
-                .from('rooms')
-                .insert([to_insert])
-                .then(({ data, error }) => {
-                    if (error) {
-                        console.error("Error creating room:", error);
-                    } else {
-                        debug_print("Room created successfully:", data);
-                        renderRooms(theme_id, theme_topic); // Refresh the rooms list
-                    }
-                });
+async function deleteRoom(roomId) {
+  if (!window.admin) return;
 
-        } else {
-            debug_print("Room topic is empty, not creating room")
-        }
-    }
-/***   End of createNewRoom */
-
-/*********
- * Deletes room and all messages from it, updates themes table
- */
-async function deleteRoom(room_id, theme_id, theme_topic) {
-    // Delete all messages from this room
-    const { error: msgError } = await client
-        .from("forum_messages")
-        .delete()
-        .eq("room_id", room_id);
-    if (msgError) {
-        console.error("Error deleting messages:", msgError);
-    } else {
-        debug_print("All messages deleted for room", room_id);
-    }
-
-    // Delete the room itself
-    const { error: roomError } = await client
-        .from("rooms")
-        .delete()
-        .eq("room_id", room_id);
-    if (roomError) {
-        console.error("Error deleting room:", roomError);
-        return;
-    } else {
-        debug_print("Room deleted:", room_id);
-    }
-    // Refresh rooms list
-    renderRooms(theme_id, theme_topic);
+  try {
+    await deleteFirestoreQuery(
+      window.db.collection("forum_posts").where("room_id", "==", roomId)
+    );
+    await deleteFirestoreQuery(
+      window.db.collection("forum_themes").where("room_id", "==", roomId)
+    );
+    await window.db.collection("forum_rooms").doc(roomId).delete();
+    await renderRooms();
+  } catch (error) {
+    console.error("Error deleting room:", error);
+    alert("The room and its themes could not be deleted.");
+  }
 }
-/**************** End of deleteRoom */
 
-/****   
- * Creates new theme
- * This function prompts the user for a theme title and description, then inserts a new theme into the database.
- */
-async function createNewTheme() {
+async function createNewTheme(roomId, roomTopic) {
+  const topic = prompt("Enter theme title")?.trim();
+  if (!topic || !window.currentUid) return;
+  const description = prompt("Enter theme description (optional)")?.trim() || "";
 
-    debug_print("Create new theme button clicked")
-    const theme_title = prompt("Enter theme title")
-    const theme_descr = prompt("Enter theme description")
-    if(theme_title && theme_descr) {
-      debug_print("Creating new theme with title: ", theme_title, " and description: ", theme_descr)
-      const to_insert = {
-        topic: theme_title,
-        description: theme_descr,
-        creater_ID: window.currentUser,
-        num_rooms: 0,
-        num_messages: 0
-      };
-      client
-        .from('themes')
-        .insert([to_insert])
-        .then(({ data, error }) => {
-          if (error) {
-            console.error("Error creating theme:", error);
-          } else {
-            debug_print("Theme created successfully:", data);
-            renderThemes(); // Refresh the themes list
-          }
-        });
-    } else {
-      debug_print("Theme title or description is empty, not creating theme")
-    }
+  try {
+    await window.db.collection("forum_themes").add({
+      room_id: roomId,
+      topic,
+      description,
+      created_at: new Date().toISOString()
+    });
+    await renderThemes(roomId, roomTopic);
+  } catch (error) {
+    console.error("Error creating theme:", error);
+    alert("The theme could not be created.");
+  }
 }
-/********* End of createNewTheme */
 
+async function deleteTheme(themeId, roomId, roomTopic) {
+  if (!window.admin) return;
 
-/*********
- * Deletes theme and all rooms/messages inside it
- */
-async function deleteTheme(theme_id) {
-    // Delete all rooms for this theme
-    const { data: roomsData, error: roomsError } = await client
-        .from("rooms")
-        .select("room_id")
-        .eq("theme_id", theme_id);
-
-    if (roomsError) {
-        console.error("Error loading rooms for theme:", roomsError);
-        return;
-    }
-
-    // Delete all messages for each room
-    if (roomsData && roomsData.length > 0) {
-        const roomIds = roomsData.map(r => r.room_id);
-        const { error: msgError } = await client
-            .from("forum_messages")
-            .delete()
-            .in("room_id", roomIds);
-        if (msgError) {
-            console.error("Error deleting messages:", msgError);
-        }
-    }
-
-    // Delete all rooms for this theme
-    if (roomsData && roomsData.length > 0) {
-        const roomIds = roomsData.map(r => r.room_id);
-        const { error: roomDeleteError } = await client
-            .from("rooms")
-            .delete()
-            .in("room_id", roomIds);
-        if (roomDeleteError) {
-            console.error("Error deleting rooms:", roomDeleteError);
-        }
-    }
-
-    // Delete the theme itself
-    const { error: themeDeleteError } = await client
-        .from("themes")
-        .delete()
-        .eq("theme_id", theme_id);
-    if (themeDeleteError) {
-        console.error("Error deleting theme:", themeDeleteError);
-    } else {
-        debug_print("Theme deleted:", theme_id);
-    }
-
-    // Refresh themes list
-    renderThemes();
+  try {
+    await deleteFirestoreQuery(
+      window.db.collection("forum_posts").where("theme_id", "==", themeId)
+    );
+    await window.db.collection("forum_themes").doc(themeId).delete();
+    await renderThemes(roomId, roomTopic);
+  } catch (error) {
+    console.error("Error deleting theme:", error);
+    alert("The theme and its messages could not be deleted.");
+  }
 }
-/********* End of deleteTheme */
 
-/****
- * Moves room from one theme to another
- * Updates num_rooms and num_messages for both themes
- * @param {number} room_id - ID of the room to move
- * @param {number} old_theme_id - ID of the theme from which to move the room
- * @param {number} new_theme_id - ID of the theme to which to move
- * @param {string} new_theme_topic - Topic of the new theme (for display purposes
- */
-async function moveRoomToTheme(room_id, old_theme_id, new_theme_id, new_theme_topic) {
-    // Update the room's theme_id
-    const { error: updateRoomError } = await client
-        .from("rooms")
-        .update({ theme_id: new_theme_id })
-        .eq("room_id", room_id);
-    if (updateRoomError) {
-        console.error("Error updating room's theme_id:", updateRoomError);
-        return;
+async function moveThemePrompt(theme, oldRoomId) {
+  try {
+    const snapshot = await window.db.collection("forum_rooms").get();
+    const rooms = firestoreRows(snapshot, "room_id")
+      .filter((room) => room.room_id !== oldRoomId);
+    if (rooms.length === 0) {
+      alert("There is no other room to move this theme to.");
+      return;
     }
 
-    renderRooms(new_theme_id, new_theme_topic);
-}
-/********* End of moveRoomToTheme */
+    const choices = rooms.map((room, index) => `${index + 1}. ${room.topic}`).join("\n");
+    const selected = Number(prompt(`Choose a destination room:\n${choices}`)) - 1;
+    if (!Number.isInteger(selected) || selected < 0 || selected >= rooms.length) return;
 
-/**
- * Sends a message to a specific forum room
- */
-async function sendForumMessage(room_id, room_topic, theme_id, theme_topic, text) {
-    debug_print(`Sending message "${text} to room ${room_id} from theme ${theme_id} for user ${window.currentUser}`)
-  const to_insert = {
-    room_id: room_id,
-    author_id: window.currentUser,
-    created_at: new Date().toISOString(),
-    text: text
-  };
-
-    const { data: insertData, error: insertError } = await client
-        .from('forum_messages')
-        .insert([to_insert])
-        .order("created_at", { ascending: true });
-
-
-    renderMessages(room_id, room_topic, theme_id, theme_topic) 
-  
-}
-/********* End of sendForumMessage */
-
-/**
- * Deletes a message from the forum
- */
-async function deleteMessage(message_id) 
-{
-        if (doubleConfirm(
-        "Are you sure you want to delete this message?",
-        "Please, rethink, this action cannot be undone.")) {
-        const { error: deleteError } = await client
-            .from("forum_messages")
-            .delete()
-            .eq("message_id", message_id);
-        if (deleteError) {
-            console.error("Error deleting message:", deleteError);
-            return false; // Indicate failure
-        } else {
-            debug_print("Message deleted:", message_id);
-            return true; // Indicate successful deletion
-            // Refresh messages list
-        }
+    const destination = rooms[selected];
+    if (doubleConfirm(
+      `Move "${theme.topic}" to "${destination.topic}"?`,
+      "Confirm this theme move."
+    )) {
+      await moveThemeToRoom(
+        theme.theme_id,
+        oldRoomId,
+        destination.room_id,
+        destination.topic
+      );
     }
+  } catch (error) {
+    console.error("Error loading rooms for theme move:", error);
+    alert("The destination rooms could not be loaded.");
+  }
 }
-/********* End of deleteMessage */
+
+async function moveThemeToRoom(themeId, oldRoomId, newRoomId, newRoomTopic) {
+  if (!window.admin) return;
+
+  try {
+    const posts = await window.db.collection("forum_posts")
+      .where("theme_id", "==", themeId)
+      .get();
+    const themeRef = window.db.collection("forum_themes").doc(themeId);
+    const batchSize = 450;
+    const firstBatch = window.db.batch();
+    firstBatch.update(themeRef, { room_id: newRoomId });
+    posts.docs.slice(0, batchSize).forEach((post) => {
+      firstBatch.update(post.ref, { room_id: newRoomId });
+    });
+    await firstBatch.commit();
+
+    for (let start = batchSize; start < posts.docs.length; start += batchSize) {
+      const batch = window.db.batch();
+      posts.docs.slice(start, start + batchSize).forEach((post) => {
+        batch.update(post.ref, { room_id: newRoomId });
+      });
+      await batch.commit();
+    }
+
+    await renderThemes(newRoomId, newRoomTopic);
+  } catch (error) {
+    console.error(`Error moving theme from room ${oldRoomId}:`, error);
+    alert("The theme could not be moved.");
+  }
+}
+
+async function sendForumMessage(roomId, themeId, text) {
+  const message = text.trim();
+  if (!message || !window.currentUid) return false;
+
+  try {
+    await window.db.collection("forum_posts").add({
+      room_id: roomId,
+      theme_id: themeId,
+      author_id: window.currentUser,
+      author_uid: window.currentUid,
+      created_at: new Date().toISOString(),
+      text: message
+    });
+    return true;
+  } catch (error) {
+    console.error("Error sending forum message:", error);
+    alert("Your message could not be sent.");
+    return false;
+  }
+}
+
+async function deleteForumPost(postId) {
+  if (!window.admin || !doubleConfirm(
+    "Are you sure you want to delete this forum message?",
+    "This action cannot be undone."
+  )) {
+    return false;
+  }
+
+  try {
+    await window.db.collection("forum_posts").doc(postId).delete();
+    return true;
+  } catch (error) {
+    console.error("Error deleting forum message:", error);
+    alert("The message could not be deleted.");
+    return false;
+  }
+}

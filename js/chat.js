@@ -1,118 +1,151 @@
+let unsubscribeChatMessages = null;
+
 async function sendMessage() {
-  const author = window.currentUser;
-  const content = document.getElementById("chat_text").value.trim();
+  const contentInput = document.getElementById("chat_text");
+  const content = contentInput.value.trim();
+  if (!content || !window.currentUid || !window.db) return;
 
-  if (!author || !content) return;
-
-  to_insert =     {
-      author: author,
-      content: content,
+  try {
+    await window.db.collection("messages").add({
+      author: window.currentUser,
+      authorUid: window.currentUid,
+      content,
       created_at: new Date().toISOString()
-    };
-  debug_print("inserting ", to_insert)
-
-  await client.from("messages").insert([to_insert]);
-
-  document.getElementById("chat_text").value = "";
-  await loadChatMessages(); // refresh after send
+    });
+    contentInput.value = "";
+  } catch (error) {
+    console.error("Could not send chat message:", error);
+    alert("Your message could not be sent.");
+  }
 }
 
-async function loadChatMessages() {
-  // debug_print("Loading chat messages")
-  const { data, error } = await client
-    .from("messages")
-    .select("*")
-    .order("created_at", { ascending: false });
+function renderChatMessages(snapshot) {
+  const chatBox = document.getElementById("chat-box");
+  chatBox.replaceChildren();
 
-  if (error) {
-    console.error("Failed to load messages:", error);
+  if (window.admin) {
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete All Messages";
+    deleteButton.addEventListener("click", async () => {
+      if (!doubleConfirm(
+        "Are you sure you want to delete all messages?",
+        "This action cannot be undone."
+      )) {
+        return;
+      }
+
+      try {
+        await deleteFirestoreQuery(window.db.collection("messages"));
+      } catch (error) {
+        console.error("Could not delete chat messages:", error);
+        alert("The chat messages could not be deleted.");
+      }
+    });
+    chatBox.appendChild(deleteButton);
   }
 
-  const chatBox = document.getElementById("chat-box");
-  chatBox.innerHTML = ""; // Clear previous messages
-  if (window.currentUser == "Guest") {
-    chatBox.innerHTML = "<p>Please log in to see the chat messages.</p>";
-    return;
-  } else {
-    if(window.admin) {
+  if (snapshot.empty) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.textContent = "No chat messages yet. Send the first one below.";
+    chatBox.appendChild(emptyMessage);
+  }
+
+  snapshot.docs.forEach((messageDoc) => {
+    const message = messageDoc.data();
+    const date = new Date(message.created_at);
+    const row = document.createElement("div");
+    const timestamp = document.createElement("small");
+    timestamp.textContent = Number.isNaN(date.getTime())
+      ? ""
+      : `${date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "America/New_York"
+      })}, ${date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+        timeZone: "America/New_York"
+      })}`;
+    const messageContent = document.createElement("span");
+    messageContent.className = "chat-message-content";
+    messageContent.appendChild(timestamp);
+    messageContent.appendChild(document.createTextNode(": "));
+
+    const author = document.createElement("strong");
+    author.textContent = message.author || "Member";
+    messageContent.appendChild(author);
+    messageContent.appendChild(document.createTextNode(`  ${message.content || ""}`));
+    row.appendChild(messageContent);
+
+    if (window.admin) {
       const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete All Messages";
+      deleteButton.className = "delete-button";
+      deleteButton.type = "button";
+      deleteButton.title = "Delete chat message";
+      deleteButton.setAttribute("aria-label", "Delete chat message");
+      deleteButton.textContent = "🗑️";
       deleteButton.addEventListener("click", async () => {
-        if (doubleConfirm("Are you sure you want to delete all messages? This action cannot be undone.", "Please, rethink.")) {
-          const { error: deleteAllError } = await client.from("messages").delete().neq("id", -1); // Delete all messages
-          if (deleteAllError) {
-            console.error("Error deleting all messages:", deleteAllError);
-          } else {
-            debug_print("All messages deleted successfully.");
-            loadChatMessages(); // Refresh the chat box
-          }
+        if (!confirm("Delete this chat message?")) return;
+        try {
+          await deleteChatMessage(messageDoc.id);
+        } catch (error) {
+          console.error("Could not delete chat message:", error);
+          alert("The message could not be deleted.");
         }
       });
-      chatBox.appendChild(deleteButton);
+      row.appendChild(deleteButton);
     }
-    data.map(msg => {
-          const isoString = msg.created_at;
-          const date = new Date(isoString);
-          const dateOptions = {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              timeZone: "America/New_York"
-          };
+    chatBox.appendChild(row);
+  });
 
-          // Options for the time part
-          const timeOptions = {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-              timeZone: "America/New_York"
-          };
-          const localDate = date.toLocaleDateString("en-US", dateOptions); // e.g. "July 12, 2025"
-          const localTime = date.toLocaleTimeString("en-US", timeOptions); // e.g. "11:30 AM"
-          const row = document.createElement("tr");
-
-          row.innerHTML = `<div>
-            <small>${localDate}, ${localTime}</small>: <strong>${msg.author}</strong>`
-          if(window.admin) {
-            row.innerHTML += ` <button class="delete-button">Delete</button>`;
-          }
-          row.innerHTML += `&nbsp;&nbsp;&nbsp; ${msg.content}</div>`;
-          if(window.admin) {
-            row.querySelector(".delete-button").addEventListener("click", async (event) => {
-                  event.stopPropagation(); // Prevent row click event
-                  if(doubleConfirm(`Are you sure you want to delete  message? ${msg.id}?`)) {
-                    await deleteChatMessage(msg.id).then(() => {
-                      debug_print("Message deleted successfully");
-                      loadChatMessages();
-                    });
-                  }
-                
-            });
-          }
-          chatBox.appendChild(row);
-    });
-  };
-
-
-  // auto-scroll to bottom
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// auto-refresh every 50 seconds
-setInterval(loadChatMessages, 5000);
-document.addEventListener("DOMContentLoaded", loadChatMessages);
+function loadChatMessages() {
+  const chatBox = document.getElementById("chat-box");
+  if (!chatBox) return;
 
-document.getElementById("chat_text").addEventListener("keydown", function (event) {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault(); // prevent new line
-    sendMessage();          // your function
+  if (unsubscribeChatMessages) {
+    unsubscribeChatMessages();
+    unsubscribeChatMessages = null;
   }
-});
+
+  chatBox.replaceChildren();
+  if (!window.currentUid) {
+    chatBox.textContent = "Please log in to see the chat messages.";
+    return;
+  }
+  if (!window.db) {
+    chatBox.textContent = "Firebase is not configured.";
+    return;
+  }
+
+  chatBox.textContent = "Loading chat messages...";
+  unsubscribeChatMessages = window.db.collection("messages")
+    .orderBy("created_at", "desc")
+    .limit(100)
+    .onSnapshot(renderChatMessages, (error) => {
+      console.error("Could not load chat messages:", error);
+      chatBox.textContent = "Could not load chat messages. Check Firebase security rules.";
+    });
+}
 
 async function deleteChatMessage(messageId) {
-  debug_print("Deleting message with ID:", messageId);
-  const { error } = await client.from("messages").delete().eq("id", messageId);
-  if (error) {
-    console.error("Failed to delete message:", error);
-  }
+  if (!window.admin) return;
+  await window.db.collection("messages").doc(messageId).delete();
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadChatMessages();
+
+  const contentInput = document.getElementById("chat_text");
+  contentInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+  document.getElementById("chat-send-btn").addEventListener("click", sendMessage);
+});

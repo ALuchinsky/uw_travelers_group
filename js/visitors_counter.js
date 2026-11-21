@@ -1,67 +1,37 @@
-debug_print("visitors_counter.js loaded");
+async function logVisit(uid) {
+  if (!window.db || !uid) return;
 
-async function getPublicIP() {
-  const res = await fetch("https://api64.ipify.org?format=json");
-  const data = await res.json();
-  return data.ip;
+  try {
+    await window.db.collection("siteStats").doc("visits").set({
+      count: firebase.firestore.FieldValue.increment(1),
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+  } catch (error) {
+    console.error("Could not record member visit:", error);
+  }
 }
-
-async function logVisit(user = null, reason = "open") {
-    ip = "unknown";
-    if (!user) {
-        user = window.currentUser || "Guest";
-    }
-    getPublicIP().then(ip => {
-        debug_print("Your IP is:", ip);
-        return ip;
-    })
-    .then(async (ip) => {
-    await client
-        .from("visits")
-        .insert([{ ip_address: ip, timestamp: new Date().toISOString(), user: user, reason: reason}])
-        .then(({ data, error }) => {
-            if (error) {
-                console.error("Error logging visit:", error);
-            } else {
-                console.log('Visit logged successfully: user:', user, 'reason:', reason, 'ip:', ip);
-            }
-        })        
-    });
-
-}
-
-
-document.getElementById("visitors-counter").innerHTML = `
-    <p>Visitors counter: <span id="visitors-count">Loading...</span></p>`
 
 async function updateVisitorsCount() {
-    const { data, error } = await client
-        .from("visits")
-        .select("id", { count: 'exact' });
+  const countElement = document.getElementById("visitors-count");
+  if (!countElement) return;
+  if (!window.db) {
+    countElement.textContent = "Unavailable";
+    return;
+  }
 
-    if (error) {
-        console.error("Error fetching visitors count:", error);
-        document.getElementById("visitors-count").innerText = "Error";
-    } else {
-        const count = data.length;
-        document.getElementById("visitors-count").innerText = count;
-    }
-
-    const { data: visitsData, error:visitsError } = await client.rpc("get_ip_counts");
-
-    if (visitsError) {
-    console.error("❌ RPC error:", visitsError);
-    } else {
-    const result = visitsData[0];  // `rpc()` returns an array with one object
-    debug_print("📊 Total visits:", result.total_count);
-    debug_print("📅 Visits this week:", result.this_week_count);
-    debug_print("🧠 Unique IPs:", result.unique_count);
-    debug_print("🌐 Unique IPs this week:", result.unique_this_week_count);
-    document.getElementById("visitors-count").innerText = 
-        `Total: ${result.total_count}, This week: ${result.this_week_count}, Unique IPs: ${result.unique_count}, Unique this week: ${result.unique_this_week_count}`;
-    }
-
+  try {
+    const snapshot = await window.db.collection("siteStats").doc("visits").get();
+    countElement.textContent = String(snapshot.exists ? snapshot.data().count || 0 : 0);
+  } catch (error) {
+    console.error("Could not load member visit count:", error);
+    countElement.textContent = "Unavailable";
+  }
 }
 
-updateVisitorsCount();
-
+document.addEventListener("DOMContentLoaded", () => {
+  const counter = document.getElementById("visitors-counter");
+  if (counter) {
+    counter.innerHTML = '<p>Member visits: <span id="visitors-count">Loading...</span></p>';
+  }
+  updateVisitorsCount();
+});
