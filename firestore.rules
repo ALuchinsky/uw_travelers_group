@@ -1,0 +1,140 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['displayName', 'email', 'updatedAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.email == request.auth.token.email;
+      allow delete: if false;
+    }
+
+    match /schedule2025/{scheduleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Legacy forum collections stay readable for the one-time migration but are immutable.
+    match /themes/{themeId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /rooms/{roomId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /forum_messages/{messageId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /forum_rooms/{roomId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'topic', 'description', 'createdByUid', 'created_at'
+        ])
+        && request.resource.data.topic is string
+        && request.resource.data.description is string
+        && request.resource.data.createdByUid is string
+        && (isAdmin() || request.resource.data.createdByUid == request.auth.uid)
+        && request.resource.data.created_at is string;
+      allow update, delete: if isAdmin();
+    }
+
+    match /forum_themes/{themeId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['room_id', 'topic', 'description', 'created_at'])
+        && request.resource.data.room_id is string
+        && exists(/databases/$(database)/documents/forum_rooms/$(request.resource.data.room_id))
+        && request.resource.data.topic is string
+        && request.resource.data.description is string
+        && request.resource.data.created_at is string;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['room_id'])
+        && exists(/databases/$(database)/documents/forum_rooms/$(request.resource.data.room_id));
+      allow delete: if isAdmin();
+    }
+
+    match /forum_posts/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'room_id', 'theme_id', 'author_id', 'author_uid', 'created_at', 'text'
+        ])
+        && request.resource.data.room_id is string
+        && request.resource.data.theme_id is string
+        && exists(/databases/$(database)/documents/forum_rooms/$(request.resource.data.room_id))
+        && exists(/databases/$(database)/documents/forum_themes/$(request.resource.data.theme_id))
+        && get(/databases/$(database)/documents/forum_themes/$(request.resource.data.theme_id)).data.room_id
+          == request.resource.data.room_id
+        && request.resource.data.author_uid is string
+        && (isAdmin() || request.resource.data.author_uid == request.auth.uid)
+        && request.resource.data.author_id is string
+        && request.resource.data.created_at is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 4000;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['room_id'])
+        && exists(/databases/$(database)/documents/forum_rooms/$(request.resource.data.room_id))
+        && getAfter(/databases/$(database)/documents/forum_themes/$(resource.data.theme_id)).data.room_id
+          == request.resource.data.room_id;
+      allow delete: if isAdmin();
+    }
+
+    match /forum_migrations/{migrationId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin()
+        && migrationId == 'rooms_themes_v1';
+      allow delete: if false;
+    }
+
+    match /messages/{messageId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'author', 'authorUid', 'content', 'created_at'
+        ])
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 4000;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /siteStats/{statsId} {
+      allow read: if statsId == 'visits';
+      allow create: if statsId == 'visits'
+        && signedIn()
+        && request.resource.data.keys().hasOnly(['count', 'updatedAt'])
+        && request.resource.data.count == 1;
+      allow update: if statsId == 'visits'
+        && signedIn()
+        && request.resource.data.keys().hasOnly(['count', 'updatedAt'])
+        && request.resource.data.count == resource.data.count + 1;
+      allow delete: if false;
+    }
+  }
+}
