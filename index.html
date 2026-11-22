@@ -8,6 +8,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-functions-compat.js"></script>
   <script src="./js/firebase-config.js"></script>
   <script src="./js/firebase.js"></script>
 </head>
@@ -79,10 +80,62 @@ USER LOGIN BLOCK
     </form>
 </dialog>
 
+<dialog id="user-management-dialog">
+    <h2>Manage users</h2>
+    <p id="user-management-status" role="status" aria-live="polite"></p>
+
+    <form id="create-user-form">
+        <h3>Add a user</h3>
+        <p><label>Email:
+            <input type="email" id="new-user-email-input" autocomplete="email" required>
+        </label></p>
+        <p><label>Display name:
+            <input type="text" id="new-user-display-name-input" maxlength="80" required>
+        </label></p>
+        <p><label>Password:
+            <input type="password" id="new-user-password-input" autocomplete="new-password" minlength="6" required>
+        </label></p>
+        <p><label>Confirm password:
+            <input type="password" id="new-user-confirm-password-input" autocomplete="new-password" minlength="6" required>
+        </label></p>
+        <p><label><input type="checkbox" id="new-user-admin-input"> Administrator</label></p>
+        <button type="submit">Add user</button>
+    </form>
+
+    <hr>
+
+    <section aria-labelledby="existing-users-heading">
+        <h3 id="existing-users-heading">Existing users</h3>
+        <div id="managed-users-list"></div>
+    </section>
+
+    <form id="edit-user-form" hidden>
+        <h3 id="edit-user-heading">Edit user</h3>
+        <p id="edit-user-email"></p>
+        <p><label>Display name:
+            <input type="text" id="edit-user-display-name-input" maxlength="80" required>
+        </label></p>
+        <p><label>New password (leave blank to keep current password):
+            <input type="password" id="edit-user-password-input" autocomplete="new-password" minlength="6">
+        </label></p>
+        <p><label>Confirm new password:
+            <input type="password" id="edit-user-confirm-password-input" autocomplete="new-password" minlength="6">
+        </label></p>
+        <p><label><input type="checkbox" id="edit-user-admin-input"> Administrator</label></p>
+        <button type="submit">Save changes</button>
+        <button type="button" id="cancel-edit-user-btn">Cancel</button>
+    </form>
+
+    <form method="dialog">
+        <menu><button value="close">Close</button></menu>
+    </form>
+</dialog>
+
 <div id="login-bar" class="login-bar">
   <button id="login_btn" onclick="loginUser()">Login</button>
   <span id="login-status"></span>
   <button id="account-settings-btn" onclick="openAccountSettings()" hidden>Account settings</button>
+  <button id="manage-users-btn" onclick="openUserManagement()" hidden>Manage users</button>
   <button id="logout_btn" onclick="logoutUser()">Logout</button>
 </div>
 <script src="./js/login.js"></script>

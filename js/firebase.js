@@ -1,6 +1,7 @@
 window.firebaseConfigured = false;
 window.auth = null;
 window.db = null;
+window.functions = null;
 
 const config = window.firebaseConfig;
 const requiredConfigValues = ["apiKey", "authDomain", "projectId", "appId"];
@@ -13,6 +14,7 @@ if (config && requiredConfigValues.every((key) =>
   firebase.initializeApp(config);
   window.auth = firebase.auth();
   window.db = firebase.firestore();
+  window.functions = firebase.functions();
   window.firebaseConfigured = true;
 } else {
   console.error("Firebase is not configured. Update js/firebase-config.js with your web app settings.");

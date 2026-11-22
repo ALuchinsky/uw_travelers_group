@@ -15,6 +15,7 @@ function updateLoginStatus(user, displayName, isAdmin) {
 
   const status = document.getElementById("login-status");
   document.getElementById("account-settings-btn").hidden = !user;
+  document.getElementById("manage-users-btn").hidden = !window.admin;
   status.textContent = user
     ? `Logged in as ${displayName}${window.admin ? " (admin)" : ""}`
     : window.firebaseConfigured
@@ -43,6 +44,161 @@ function setAccountSettingsStatus(message, isError = false) {
   const status = document.getElementById("account-settings-status");
   status.textContent = message;
   status.style.color = isError ? "firebrick" : "inherit";
+}
+
+function setUserManagementStatus(message, isError = false) {
+  const status = document.getElementById("user-management-status");
+  status.textContent = message;
+  status.style.color = isError ? "firebrick" : "inherit";
+}
+
+function renderManagedUsers(users) {
+  const list = document.getElementById("managed-users-list");
+  if (!users.length) {
+    list.textContent = "No users found.";
+    return;
+  }
+
+  list.innerHTML = `<table class="managed-users-table">
+    <thead><tr><th>Email</th><th>Display name</th><th>Role</th><th>Actions</th></tr></thead>
+    <tbody>${users.map((user) => `<tr>
+      <td>${escapeHtml(user.email)}</td>
+      <td>${escapeHtml(user.displayName)}</td>
+      <td>${user.isAdmin ? "Admin" : "Member"}</td>
+      <td>
+        <button type="button" data-edit-user="${escapeHtml(user.uid)}">Edit</button>
+        <button type="button" class="user-delete-button" data-delete-user="${escapeHtml(user.uid)}">Delete</button>
+      </td>
+    </tr>`).join("")}</tbody>
+  </table>`;
+}
+
+async function loadManagedUsers(successMessage = "") {
+  if (!window.admin || !window.functions) {
+    setUserManagementStatus("Admin access and Firebase Functions are required.", true);
+    return;
+  }
+
+  setUserManagementStatus("Loading users...");
+  try {
+    const result = await window.functions.httpsCallable("adminListUsers")();
+    renderManagedUsers(result.data.users);
+    setUserManagementStatus(successMessage);
+  } catch (error) {
+    console.error("Could not load users:", error);
+    setUserManagementStatus("Could not load users. Check the Firebase Functions deployment and your admin access.", true);
+  }
+}
+
+function openUserManagement() {
+  if (!window.admin) return;
+
+  document.getElementById("create-user-form").reset();
+  document.getElementById("edit-user-form").hidden = true;
+  document.getElementById("user-management-dialog").showModal();
+  loadManagedUsers();
+}
+
+async function createManagedUser(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const email = document.getElementById("new-user-email-input").value.trim();
+  const displayName = document.getElementById("new-user-display-name-input").value.trim();
+  const password = document.getElementById("new-user-password-input").value;
+  const confirmPassword = document.getElementById("new-user-confirm-password-input").value;
+  const isAdmin = document.getElementById("new-user-admin-input").checked;
+
+  if (!window.admin || !window.functions) return;
+  if (!displayName || displayName.length > 80 || password.length < 6) {
+    setUserManagementStatus("Enter a display name (up to 80 characters) and a password of at least 6 characters.", true);
+    return;
+  }
+  if (password !== confirmPassword) {
+    setUserManagementStatus("The passwords do not match.", true);
+    return;
+  }
+
+  try {
+    await window.functions.httpsCallable("adminCreateUser")({ email, displayName, password, isAdmin });
+    form.reset();
+    await loadManagedUsers("User added.");
+  } catch (error) {
+    console.error("Could not create user:", error);
+    setUserManagementStatus(error.code === "functions/already-exists"
+      ? "An account with that email already exists."
+      : error.code === "functions/invalid-argument"
+        ? "Check the email, display name, and password and try again."
+        : "Could not add user. Check the Firebase Functions deployment and your admin access.", true);
+  }
+}
+
+function beginEditManagedUser(user) {
+  document.getElementById("edit-user-form").hidden = false;
+  document.getElementById("edit-user-form").dataset.userId = user.uid;
+  document.getElementById("edit-user-heading").textContent = `Edit ${user.displayName || user.email}`;
+  document.getElementById("edit-user-email").textContent = user.email;
+  document.getElementById("edit-user-display-name-input").value = user.displayName;
+  document.getElementById("edit-user-password-input").value = "";
+  document.getElementById("edit-user-confirm-password-input").value = "";
+  const adminInput = document.getElementById("edit-user-admin-input");
+  adminInput.checked = user.isAdmin;
+  adminInput.disabled = user.uid === window.currentUid;
+  document.getElementById("edit-user-form").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+async function saveManagedUser(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const uid = form.dataset.userId;
+  const displayName = document.getElementById("edit-user-display-name-input").value.trim();
+  const password = document.getElementById("edit-user-password-input").value;
+  const confirmPassword = document.getElementById("edit-user-confirm-password-input").value;
+  const isAdmin = document.getElementById("edit-user-admin-input").checked;
+
+  if (!window.admin || !window.functions) return;
+  if (!uid || !displayName || displayName.length > 80 || (password && password.length < 6)) {
+    setUserManagementStatus("Enter a display name (up to 80 characters) and, if changing it, a password of at least 6 characters.", true);
+    return;
+  }
+  if (password !== confirmPassword) {
+    setUserManagementStatus("The new passwords do not match.", true);
+    return;
+  }
+
+  try {
+    await window.functions.httpsCallable("adminUpdateUser")({ uid, displayName, password, isAdmin });
+    form.hidden = true;
+    await loadManagedUsers("User updated.");
+  } catch (error) {
+    console.error("Could not update user:", error);
+    setUserManagementStatus(error.code === "functions/not-found"
+      ? "That user no longer exists."
+      : error.code === "functions/failed-precondition"
+        ? error.message.includes("own")
+          ? "You cannot remove your own administrator access."
+          : "At least one administrator must remain."
+      : error.code === "functions/invalid-argument"
+        ? "Check the display name and password and try again."
+        : "Could not update user. Check the Firebase Functions deployment and your admin access.", true);
+  }
+}
+
+async function deleteManagedUser(uid) {
+  const confirmed = window.confirm("Delete this user? This permanently removes their account and profile.");
+  if (!confirmed) return;
+
+  try {
+    await window.functions.httpsCallable("adminDeleteUser")({ uid });
+    document.getElementById("edit-user-form").hidden = true;
+    await loadManagedUsers("User deleted.");
+  } catch (error) {
+    console.error("Could not delete user:", error);
+    setUserManagementStatus(error.code === "functions/failed-precondition"
+      ? "You cannot delete the account you are currently using."
+      : error.code === "functions/not-found"
+        ? "That user no longer exists."
+        : "Could not delete user. Check the Firebase Functions deployment and your admin access.", true);
+  }
 }
 
 async function saveDisplayName(event) {
@@ -197,6 +353,32 @@ async function logoutUser() {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("display-name-form").addEventListener("submit", saveDisplayName);
   document.getElementById("password-form").addEventListener("submit", changePassword);
+  document.getElementById("create-user-form").addEventListener("submit", createManagedUser);
+  document.getElementById("edit-user-form").addEventListener("submit", saveManagedUser);
+  document.getElementById("cancel-edit-user-btn").addEventListener("click", () => {
+    document.getElementById("edit-user-form").hidden = true;
+  });
+  document.getElementById("managed-users-list").addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    const users = Array.from(document.querySelectorAll("#managed-users-list tbody tr"), (row) => {
+      const [email, displayName, role, actions] = row.cells;
+      const userId = actions.querySelector("[data-edit-user]").dataset.editUser;
+      return {
+        uid: userId,
+        email: email.textContent,
+        displayName: displayName.textContent,
+        isAdmin: role.textContent === "Admin"
+      };
+    });
+
+    if (button.dataset.editUser) {
+      const user = users.find((item) => item.uid === button.dataset.editUser);
+      if (user) beginEditManagedUser(user);
+    } else if (button.dataset.deleteUser) {
+      deleteManagedUser(button.dataset.deleteUser);
+    }
+  });
 
   if (!window.auth) {
     updateLoginStatus(null, "Guest", false);
