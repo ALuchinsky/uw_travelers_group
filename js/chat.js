@@ -76,6 +76,7 @@ function renderChatMessages(snapshot) {
     const author = document.createElement("strong");
     author.textContent = message.author || "Member";
     messageContent.appendChild(author);
+    messageContent.appendChild(document.createTextNode(": "));
     messageContent.appendChild(document.createTextNode(`  ${message.content || ""}`));
     row.appendChild(messageContent);
 

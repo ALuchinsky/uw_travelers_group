@@ -124,6 +124,15 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /auth_history/{entryId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['action', 'email', 'created_at'])
+        && request.resource.data.action in ['login', 'logout']
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.created_at == request.time;
+      allow read, update, delete: if false;
+    }
+
     match /siteStats/{statsId} {
       allow read: if statsId == 'visits';
       allow create: if statsId == 'visits'

@@ -279,6 +279,18 @@ async function changePassword(event) {
   }
 }
 
+async function recordAuthAction(action, user) {
+  if (!window.db || !user.email) {
+    throw new Error("Firestore and an account email are required to record authentication history.");
+  }
+
+  await window.db.collection("auth_history").add({
+    action,
+    email: user.email,
+    created_at: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
 async function handleAuthState(user) {
   if (!user) {
     updateLoginStatus(null, "Guest", false);
@@ -328,11 +340,20 @@ async function loginUser() {
     const password = passwordInput.value;
     passwordInput.value = "";
 
+    let credential;
     try {
-      await window.auth.signInWithEmailAndPassword(email, password);
+      credential = await window.auth.signInWithEmailAndPassword(email, password);
     } catch (error) {
       console.error("Firebase sign-in failed:", error);
       alert("Sign-in failed. Check your email and password, or ask the site administrator for an account.");
+      return;
+    }
+
+    try {
+      await recordAuthAction("login", credential.user);
+    } catch (error) {
+      console.error("Could not record login history:", error);
+      alert("You are signed in, but your login could not be added to history.");
     }
   }, { once: true });
 
@@ -341,6 +362,14 @@ async function loginUser() {
 
 async function logoutUser() {
   if (!window.auth || !window.auth.currentUser) return;
+
+  try {
+    await recordAuthAction("logout", window.auth.currentUser);
+  } catch (error) {
+    console.error("Could not record logout history:", error);
+    alert("Could not save your logout history, so you remain signed in. Please try again.");
+    return;
+  }
 
   try {
     await window.auth.signOut();
